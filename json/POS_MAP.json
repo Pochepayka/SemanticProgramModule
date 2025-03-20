@@ -1,0 +1,18 @@
+{
+  "N": "NOUN",
+  "V": "VERB",
+  "INFINITIVE": "INFI",
+  "A": "ADJF",
+  "ADV": "ADVB",
+  "PR": "PREP",
+  "CONJ": "CONJ",
+  "NUM": "NUMR",
+  "PART": "PRCL",
+  "P": "NPRO",
+  "PA": "NPRO",
+  "PARTICLE" : "PART",
+  "PARTICIPLE" : "PARTICIPLE",
+  "ADJ_SHORT": "ADJF_SHORT",
+  "ADV_PARTICIPLE": "ADVB_PARTICIPLE"
+
+}

@@ -1,0 +1,21 @@
+{
+    "NOUN": "#FFD700",
+    "VERB": "#FF6347",
+    "INFI": "#F08080",
+    "ADJF": "#87CEEB",
+    "ADVB": "#98FB98",
+    "PREP": "#DDA0DD",
+    "CONJ": "#6495ED",
+    "NUMR": "#FFDAB9",
+    "PRCL": "#8B9467",
+    "NPRO": "#FFA07A",
+    "PART": "#C9E4CA",
+    "PARTICIPLE":  "#87CEEB",
+    "ADJF_SHORT": "#f44609",
+    "ADVB_PARTICIPLE": "#55f609",
+    "ROOT": "#FF000F",
+    "SENT": "#FFF00F",
+    "PART_SENT": "#BFF00F",
+    "NONE": "#555555",
+    "UNDEFIND" : "#555555"
+}

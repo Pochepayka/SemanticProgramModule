@@ -1,0 +1,84 @@
+from ProgramModule import ProgramModule
+from Tests import *
+
+
+
+def DoAnalyze(text):
+    module = ProgramModule(text)
+    module.print_graphem_res()
+    module.print_spliter_res()
+    module.print_morph_res()
+    module.print_sintaxis_res()
+
+
+
+
+def test1():
+    text = """Две старые кошки, 
+    мурлыча и грациозно двигаясь,
+    поймали трёх мелких мышей в саду, 
+    но потом убежали в тёмный лес, 
+    где всегда тихо."""
+
+    DoAnalyze(text)
+
+def test2():
+    text = """Я очень долго и нудно думал 
+    о смысле своей жизни и представлял себя 
+    на песчаном пляже бездонного тихого океана 
+    вместе с любимой девушкой."""
+
+    DoAnalyze(text)
+
+def test3():
+    text = """Дядя был самых честных правил, 
+    когда он не в шутку занемог, 
+    он уважать себя заставил и 
+    лучше выдумать не мог."""
+
+    DoAnalyze(text)
+
+def test4():
+    text = """Я очень люблю читать разные, 
+    старые романы Бориса Акунина о подвигах 
+    статского советника Фондорина и его 
+    поручика Массы и представлять себя на месте 
+    главного героя этого замечательного романа."""
+
+
+    DoAnalyze(text)
+
+
+def test5():
+    text = """Тихо. Весенний вечер - чудесное время."""
+
+    DoAnalyze(text)
+
+def test6():
+    text = """http://ya.ru www.youtube.com ya@ya.com. 
+    Осень. Иван ушёл, а мама кричала: 
+    'Вернёшься к 21.00?!' Вечер - чудесное время!"""
+
+    DoAnalyze(text)
+
+def test7():
+    text = """Мы отправились в путь, 
+    когда солнце взошло, и очень долго шли? 
+    Я знал, что он придёт. Но волновался!"""
+
+    DoAnalyze(text)
+
+def test8():
+    text = """Утром. Ива, шелестящая во дворе , раскинув ветви на солнце, свисала в овраг."""
+
+    DoAnalyze(text)
+
+def test9():
+    text = """Утром?"""
+
+    DoAnalyze(text)
+
+
+
+if __name__ == "__main__":
+    print()

@@ -1,0 +1,7 @@
+models
+__pycache__
+.idea
+.pytest_cache
+.venv
+old_version/.pytest_cache
+old_version/__pycache__
