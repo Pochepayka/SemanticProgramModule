@@ -86,6 +86,7 @@ def visualize_tree(root_node):
     plt.title("Синтаксическое дерево с цветовым кодированием", fontsize=14)
     plt.tight_layout()
     plt.show()
+    return
 
 # Пример использования
 if __name__ == "__main__":

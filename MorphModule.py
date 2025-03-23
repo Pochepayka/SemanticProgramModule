@@ -52,6 +52,8 @@ class MorphAnalyzer:
                     "tense": morph_features["tense"],
                     "animacy": morph_features["animacy"],
                     "trans": morph_features["trans"],
+                    #"pledge": morph_features["pledge"],
+                    "type": morph_features["type"],
                     "variants": morph_features["variants"]
                 }
 
@@ -74,6 +76,8 @@ class MorphAnalyzer:
             'animacy': [],
             'tense': [],
             "trans" : [],
+            "type" : [],
+            # "pledge" : [],
             "variants": [],
         }
 
@@ -92,6 +96,10 @@ class MorphAnalyzer:
                 result['tense'].append(self.MORPH_FEATURE_MAP.get(feature))
             elif feature in {'trans', 'intrans'}:
                 result['trans'].append(self.MORPH_FEATURE_MAP.get(feature))
+            elif feature in {'perf','imperf'}:
+                result['type'].append(self.MORPH_FEATURE_MAP.get(feature))
+            # elif feature in {}:
+            #     result['pledge'].append(self.MORPH_FEATURE_MAP.get(feature))
 
 
         if pos == "PREP":
@@ -103,13 +111,13 @@ class MorphAnalyzer:
 
             numbers = [inverted_MORPH_FEATURE_MAP.get(number) for number in result.get("number")]
             if not numbers:
-                number = [""]
+                numbers = [""]
             cases = [inverted_MORPH_FEATURE_MAP.get(case) for case in result.get("case")]
             if not cases:
                 cases = [""]
             genders = [inverted_MORPH_FEATURE_MAP.get(gender) for gender in result.get("gender")]
             if not genders:
-                gender = [""]
+                genders = [""]
             variants = []
             for num in numbers:
                 for case in cases:
@@ -168,13 +176,15 @@ class MorphAnalyzer:
 if __name__ == "__main__":
     analyzer = MorphAnalyzer()
 
-    text = ["молча", "улыбаясь", "затаив", "раскинув"]
-    word = "шелестящий"
-    # Анализ слова
-    print("\nАнализ слова:")
-    print(analyzer.analyze_word(word))
+    text = ["мой", "пятый" ]
 
-    # Полная информация о слове
-    print("\nПолная информация:")
-    for info in analyzer.get_word_info(word):
-        print(info)
+    #word = "гуляю"
+    for word in text:
+        # Анализ слова
+        print("\nАнализ слова:")
+        print(analyzer.analyze_word(word))
+
+        # Полная информация о слове
+        print("\nПолная информация:")
+        for info in analyzer.get_word_info(word):
+            print(info)

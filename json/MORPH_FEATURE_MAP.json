@@ -17,4 +17,6 @@
   "past": "past",
   "futr": "futr",
   "intrans": "intrans",
-  "trans": "trans"}
+  "trans": "trans",
+  "imperf": "imperf",
+  "perf": "perf"}

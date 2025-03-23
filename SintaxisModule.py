@@ -1,5 +1,7 @@
 from enum import Enum
 
+from sympy import andre
+
 
 class PartOfSpeech(Enum):
     SUBJECT = "Подлежащее"
@@ -11,7 +13,6 @@ class PartOfSpeech(Enum):
     NONE = "Не определено"
     MAIN_PREDICATE = "Корневое сказуемое"
     MAIN_SUBJECT = "Корневое подлежащее"
-    MAIN = "Главный корень"
 
 class SyntaxNode:
     """Класс для представления узла синтаксического дерева."""
@@ -203,25 +204,85 @@ class SintaxisAnalyzer:
 
 
     # Вспомогательные методы
-    def conect_to_predicate(self, i, default_pred, node, link_type, numbers = [],genders = []):
+    def connect_to_predicate(self, i, default_pred, node, link_type, numbers = [],genders = []):
         pred = default_pred#None#
         maxI = 0
         maxDelt = 1000
         for predicate in self.predicate_nodes:
             #if int(i-predicate[1])<maxDelt and int(i-predicate[1])!=0:
             if predicate[1] < i and predicate[1] >= maxI :
-                if not(node.type == "VERB" and predicate[0].type == "INFI") and \
-                        ((self.check_common_word(predicate[0].features.get("number"), numbers) or \
-                        numbers == [] or \
-                        predicate[0].features.get("number") == []) and \
-                        (self.check_common_word(predicate[0].features.get("gender"), genders) or \
-                         genders == [] or \
-                         predicate[0].features.get("gender") == [])):
+                if self._can_connect(node,predicate[0],numbers,genders):
                     pred = predicate[0]
                     maxI = predicate[1]
                     maxDelt = i-predicate[1]
-        if pred:
+        if pred and self._can_connect(node,pred,numbers,genders):
             pred.add_connection(node, link_type)
+
+    def _can_connect(self,child,parent,numbers=[],genders=[]):
+        if parent.part_of_sentence in [PartOfSpeech.PREDICATE, PartOfSpeech.MAIN_PREDICATE]:
+            if child.part_of_sentence in [PartOfSpeech.PREDICATE]:
+                num_connect = self.check_common_word(child.features.get("number"), parent.features.get("number")) or child.features.get("number") + parent.features.get("number") == []
+                gender_connect = self.check_common_word(child.features.get("gender"), parent.features.get("gender")) or child.features.get("gender") + parent.features.get("gender") == []
+                tense_connect = self.check_common_word(child.features.get("tense"), parent.features.get("tense")) or child.features.get("tense") + parent.features.get("tense") == []
+                #type_connect = self.check_common_word(child.features.get("type"), parent.features.get("type")) or child.features.get("type") + parent.features.get("type") == []
+                return num_connect and gender_connect and tense_connect #and type_connect
+
+            elif child.part_of_sentence in [PartOfSpeech.SUB_PREDICATE]:
+                #child_intrans = self.check_common_word(child.features.get("trans"),["intrans"]) or True
+                parent_transe = self.check_common_word(parent.features.get("trans"), ["trans"])
+                return  parent_transe #and child_intrans
+
+            elif child.part_of_sentence in [PartOfSpeech.SUBJECT]:
+                num_connect = self.check_common_word(parent.features.get("number"), numbers)
+                num_null =  numbers == [] or parent.features.get("number") == []
+                gender_connect = self.check_common_word(parent.features.get("gender"), genders)
+                gender_null = genders == [] or parent.features.get("gender") == []
+                return (num_connect or num_null) and (gender_connect or gender_null)
+
+            elif child.part_of_sentence in [PartOfSpeech.OBJECT]:
+                return True
+
+            elif child.part_of_sentence in [PartOfSpeech.CIRCUMSTANCE]:
+                return True
+
+            elif child.part_of_sentence in [PartOfSpeech.DEFINITION]:
+                return True
+
+            elif child.part_of_sentence in [PartOfSpeech.NONE]:
+                return True
+
+            elif child.part_of_sentence in [PartOfSpeech.MAIN_PREDICATE, PartOfSpeech.MAIN_SUBJECT]:
+                return False
+
+            return False
+
+        elif parent.part_of_sentence in [PartOfSpeech.SUB_PREDICATE]:
+            if child.part_of_sentence in [PartOfSpeech.PREDICATE,PartOfSpeech.SUBJECT,PartOfSpeech.SUB_PREDICATE]:
+                return False
+            return True
+
+        elif parent.part_of_sentence in [PartOfSpeech.CIRCUMSTANCE]:
+            if child.part_of_sentence in [PartOfSpeech.PREDICATE,PartOfSpeech.SUBJECT,PartOfSpeech.SUB_PREDICATE]:
+                return False
+            return True
+
+        elif parent.part_of_sentence in [PartOfSpeech.DEFINITION]:
+            if child.part_of_sentence in [PartOfSpeech.PREDICATE,PartOfSpeech.SUBJECT,PartOfSpeech.SUB_PREDICATE,PartOfSpeech.CIRCUMSTANCE]:
+                return False
+            return True
+
+
+
+
+
+        else:
+            if child.part_of_sentence in [PartOfSpeech.OBJECT]:
+                return True
+            return False
+
+
+
+
 
     def _find_primary_predicate(self, nodes, main):
         """Поиск основного сказуемого"""
@@ -253,6 +314,8 @@ class SintaxisAnalyzer:
         """Обработка отдельного узла"""
         subject_node = self._process_subject(node, i, predicate_node,subject_node)
         definition_node = self._process_definition(node, i, nodes, definition_node)
+        definition_node = self._process_participle(node, i, nodes, definition_node)
+        definition_node = self._process_definition_N_A(node, i, nodes, definition_node)
         circumstance_node = self._process_circumstance(node, i, predicate_node, circumstance_node)
         predicate_node = self._process_verb(node, i, predicate_node)
         predicate_node = self._process_infinitive(node, i, predicate_node)
@@ -268,16 +331,17 @@ class SintaxisAnalyzer:
         if (node.type in ['NOUN', 'NPRO']
                 and "nomn" in node.features.get('case')
                 and not node.parent):
+
             numbers = []
             genders = []
             for var in node.features.get("variants"):
                 if "nomn" in var:
                     numbers += [var[1]]
                     genders += [var[2]]
-            #print("!!!!",node.lemma,numbers,genders)
+
             node.change_part_of_sent(PartOfSpeech.SUBJECT)
             if predicate_node:
-                self.conect_to_predicate(i, predicate_node, node, 'subject',numbers,genders)
+                self.connect_to_predicate(i, predicate_node, node, 'subject',numbers,genders)
 
             if subject_node == None:
                 subject = node
@@ -292,16 +356,16 @@ class SintaxisAnalyzer:
             self.predicate_nodes.append([node, i])
             if predicate_node:
                 # predicate_node.add_connection(node, 'homogeneous')
-                self.conect_to_predicate(i, predicate_node, node,'homogeneous')
+                self.connect_to_predicate(i, predicate_node, node,'homogeneous')
         return predicate_node
 
     def _process_infinitive(self, node, i, predicate_node):
         """Обработка инфинитивов"""
         if node.type == 'INFI':
-            node.change_part_of_sent(PartOfSpeech.PREDICATE)
+            node.change_part_of_sent(PartOfSpeech.SUB_PREDICATE)
             self.predicate_nodes.append([node, i])
             if predicate_node:
-                self.conect_to_predicate(i, predicate_node, node, 'predicate')
+                self.connect_to_predicate(i, predicate_node, node, 'predicate')
         return predicate_node
 
     def _process_particle(self, node, i, nodes):
@@ -309,21 +373,52 @@ class SintaxisAnalyzer:
         if node.type in ["PRCL", "PART"] and i + 1 < len(nodes):
             nodes[i + 1].add_connection(node, "participle")
 
+    def _process_participle(self, node, i, nodes,definition_node):
+        """Обработка причастий"""
+        if node.type == "PARTICIPLE":
+            node.change_part_of_sent(PartOfSpeech.DEFINITION)
+            self.predicate_nodes.append([node, i])
+            if not node.connections:
+                if node.type == "PARTICIPLE":
+                    closest_noun = next((n for n in nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
+                                         self.connect_adjf_to_n(node, n)), None)
+                    if not closest_noun:
+                        closest_noun = next((n for n in nodes if n.type in ['NOUN', 'NPRO'] and
+                                         self.connect_adjf_to_n(node, n)), None)
+
+                if closest_noun:
+                    closest_noun.add_connection(node, 'attribute')
+            if definition_node == None:
+                definition = node
+                return definition
+        return definition_node
+
     def _process_definition(self, node, i, nodes,definition_node):
         """Обработка определений"""
-        if (node.type == 'ADJF' and node.features.get('case') != []) or node.type == "PARTICIPLE":
+        if node.type == 'ADJF' and node.features.get('case') != []:
             node.change_part_of_sent(PartOfSpeech.DEFINITION)
-            if node.type == "PARTICIPLE":
-                self.predicate_nodes.append([node, i])
             if not node.connections:
-                closest_noun = next((n for n in nodes if n.type in ['NOUN', 'NPRO'] and
+                closest_noun = next((n for n in nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
                                      self.connect_adjf_to_n(node,n)), None)
                 if closest_noun:
                     closest_noun.add_connection(node, 'attribute')
             if definition_node == None:
                 definition = node
                 return definition
+        return definition_node
 
+    def _process_definition_N_A(self, node, i, nodes,definition_node):
+        """Обработка определений"""
+        if node.type == 'NPRO_ADVB' or node.type == 'NOUN_ADVB':
+            node.change_part_of_sent(PartOfSpeech.DEFINITION)
+            if not node.connections:
+                closest_noun = next((n for n in nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
+                                     self.connect_adjf_to_n(node,n)), None)
+                if closest_noun:
+                    closest_noun.add_connection(node, 'attribute')
+            if definition_node == None:
+                definition = node
+                return definition
         return definition_node
 
     def connect_adjf_to_n(self,node,n):
@@ -350,7 +445,7 @@ class SintaxisAnalyzer:
         """Обработка предложных конструкций"""
         if node.type == 'PREP':
             node.change_part_of_sent(PartOfSpeech.OBJECT)
-            if not node.connections:
+            if  all(not(connect[0].type in ['NOUN', 'NPRO']) for connect in node.connections):
                 next_noun = next((n for n in nodes[i + 1:]
                                   if n.type in ['NOUN', 'NPRO'] and not (n.parent) and self.connect_pp_to_n(node, n)), None)
 
@@ -360,7 +455,7 @@ class SintaxisAnalyzer:
                     node.add_connection(next_noun, 'object')
                     # Связываем предлог с глаголом (сказуемым)
             if predicate_node:
-                self.conect_to_predicate(i, predicate_node, node, 'prepositional_object')
+                self.connect_to_predicate(i, predicate_node, node, 'prepositional_object')
 
     def _process_circumstance(self, node, i, predicate_node, circumstance_node):
         """Обработка обстоятельств"""
@@ -368,7 +463,7 @@ class SintaxisAnalyzer:
             node.change_part_of_sent(PartOfSpeech.CIRCUMSTANCE)
 
             if predicate_node:
-                self.conect_to_predicate(i, predicate_node, node, 'adverbial')
+                self.connect_to_predicate(i, predicate_node, node, 'adverbial')
             if circumstance_node == None:
                 circumstance = node
                 return circumstance
@@ -397,7 +492,7 @@ class SintaxisAnalyzer:
             if circumstance_node:
                 circumstance_node.add_connection(node, 'homogeneous')
             elif predicate_node:
-                self.conect_to_predicate(i, predicate_node, node, 'circumstance')
+                self.connect_to_predicate(i, predicate_node, node, 'circumstance')
 
     def _determine_root_node(self, nodes, main, predicate_node, subject_node, circumstance_node, definition_node):
         """Определение корневого узла"""

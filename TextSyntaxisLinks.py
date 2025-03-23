@@ -25,7 +25,7 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
         PartOfSpeech.PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         PartOfSpeech.MAIN_SUBJECT: {"linestyle": "-", "color": "blue", "linewidth": 2},
         PartOfSpeech.MAIN_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
-        PartOfSpeech.MAIN: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
+        #PartOfSpeech.MAIN: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         PartOfSpeech.DEFINITION: {"linestyle": ":", "color": "purple", "linewidth": 2},
         PartOfSpeech.SUBJECT: {'color': 'blue', 'linewidth': 2},
         PartOfSpeech.CIRCUMSTANCE: {'color': 'green', 'linestyle': '-.'},
