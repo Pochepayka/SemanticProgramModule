@@ -103,6 +103,8 @@ class GraphematicAnalyzer:
                 return 'CLS'
             elif text in ('-', '—'):
                 return 'HYP'
+            elif text in (':'):
+                return 'COL'
             if len(text) > 1:
                 return 'PLP' if len(text) <= 20 else 'DPUN'
         return ''

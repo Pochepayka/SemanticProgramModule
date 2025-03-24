@@ -1,5 +1,4 @@
 import re
-from GraphematicModule import GraphematicAnalyzer
 
 class ClauseSplitter:
     def __init__(self):
@@ -54,12 +53,18 @@ class ClauseSplitter:
             "причем"
         ]
 
-        self.graphematic_analyzer = GraphematicAnalyzer()
-
     @staticmethod
     def split_into_tokens(graphems):#(self, sentence ):
         #graphems = self.graphematic_analyzer.analyze(sentence)
-        tokens = [graphem[0] for graphem in graphems if not("DEL" in graphem[1])]
+        token_id = 1
+        tokens = []
+        for graphem in graphems:
+            if not ("DEL" in graphem[1]):
+                if not ("PUN" in graphem[1]):
+                    tokens += [[graphem[0],token_id]]
+                    token_id+=1
+                else:
+                    tokens += [[graphem[0],-1]]
         return tokens
 
     @staticmethod
@@ -142,9 +147,10 @@ if __name__ == "__main__":
     from GraphematicModule import GraphematicAnalyzer
 
     text = """
-    Когда солнце взошло, мы отправились в путь, и дорога оказалась удивительно красивой и светлой.
-    Я знал, что он придёт, но всё равно волновался.
-    Она улыбнулась мне, потому что была рада встрече, и я почувствовал тепло её взгляда.
+Его мечта — путешествия, её мечта - уютный дом. 
+Утро было солнечным, день — дождливым. 
+Он любит кофе, она — чай.
+На столе лежали фрукты: яблоки, бананы и апельсины.
     """
     graphems = GraphematicAnalyzer().analyze(text)
 

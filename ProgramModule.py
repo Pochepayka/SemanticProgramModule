@@ -23,12 +23,13 @@ class ProgramModule:
 
         self.morph_res_for_clauses = []
         self.morph_res = []
-
+        num_in_text = 1
         for clause in self.clauses_res:
             morph_res_i_clause = []
             for word in clause.get("tokens"):
-                morph_res_i_clause += [self.morph_analyzer.analyze_word(word)]
-                self.morph_res += [self.morph_analyzer.analyze_word(word)]
+                morph_res_i_clause += [self.morph_analyzer.analyze_word(word,num_in_text)]
+                self.morph_res += [self.morph_analyzer.analyze_word(word,num_in_text)]
+                num_in_text+=1
             self.morph_res_for_clauses += [morph_res_i_clause]
 
         self.sintaxis_root, self.sintaxis_nodes, self.sintaxis_text_info, self.sintaxis_tree_in_txt = \

@@ -1,6 +1,5 @@
 
 from SintaxisModule import PartOfSpeech
-from ClauseSpliter import ClauseSplitter
 import matplotlib.pyplot as plt
 
 
@@ -23,8 +22,9 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
     # Стили для подчеркиваний
     styles = {
         PartOfSpeech.PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
-        PartOfSpeech.MAIN_SUBJECT: {"linestyle": "-", "color": "blue", "linewidth": 2},
+        PartOfSpeech.MAIN_SUBJECT: {'color': 'blue', 'linewidth': 2},
         PartOfSpeech.MAIN_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
+        PartOfSpeech.SUB_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         #PartOfSpeech.MAIN: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         PartOfSpeech.DEFINITION: {"linestyle": ":", "color": "purple", "linewidth": 2},
         PartOfSpeech.SUBJECT: {'color': 'blue', 'linewidth': 2},
@@ -42,17 +42,16 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
         # Рисуем слова
         for i, token in enumerate(line_tokens):
             x_pos = i + 0.5
-            ax.text(x_pos, y_pos + 0.5, token,
-                    ha='center', va='center',
-                    fontsize=12)
-            token_positions[token.lower()] = (x_pos, y_pos + 0.2)
+            ax.text(x_pos, y_pos + 0.5, token[0],
+                    ha='center', va='center', fontsize=12)
+            token_positions[token[1]] = (x_pos, y_pos + 0.2)
 
         # Рисуем подчеркивания
         for node in nodes:
-            if node.features.get("word") and node.features["word"].lower() in token_positions:
+            if node.features.get("num_in_text") and node.features["num_in_text"] in token_positions:
                 part = node.part_of_sentence
                 if part in styles:
-                    x, y = token_positions[node.features["word"].lower()]
+                    x, y = token_positions[node.features["num_in_text"]]
                     ax.hlines(
                         y=y,
                         xmin=x - 0.4,
@@ -66,10 +65,10 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
     i_level = 3
     for node in nodes:
         # print(node.features.get("word"))
-        if node.parent and node.parent.features.get("word"):
+        if node.parent and node.parent.features.get("num_in_text"):
             try:
-                child_x, child_y = token_positions[node.features["word"].lower()]
-                parent_x, parent_y = token_positions[node.parent.features["word"].lower()]
+                child_x, child_y = token_positions[node.features["num_in_text"]]
+                parent_x, parent_y = token_positions[node.parent.features["num_in_text"]]
 
                 # Пропускаем связи с одинаковыми координатами
                 if (child_x, child_y) == (parent_x, parent_y):

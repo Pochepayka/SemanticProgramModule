@@ -1,7 +1,5 @@
 from enum import Enum
-
 from sympy import andre
-
 
 class PartOfSpeech(Enum):
     SUBJECT = "Подлежащее"
@@ -42,12 +40,10 @@ class SintaxisAnalyzer:
         self.definition_node = None
         self.circumstance_node = None
 
-    def analyze(self, clauses, parseds):#text):
+    def analyze(self, clauses, parsed_morph_tokens):
 
-        # splitter = ClauseSplitter()
-        # clauses = splitter.split_into_clauses(text)
-
-        # hyp = False
+        hyp = False
+        col = False
         all_nodes = []
 
         nodes_in_sent = []
@@ -72,26 +68,34 @@ class SintaxisAnalyzer:
             descriptor = clause["descriptor"]
             separator = clause["separator"]
             sub_conjunctions = clause["sub_conjunctions"]
-            sub_conj_sent+=sub_conjunctions
             coord_conjunctions = clause["coord_conjunctions"]
+            sub_conj_sent+=sub_conjunctions
             coord_conj_sent+=coord_conjunctions
 
             #parsed = [self.morph_analyzer.analyze_word(word) for word in tokens]
-            parsed_morph = parseds[i]
+            parsed_morph = parsed_morph_tokens[i] #берем чписок соответствующий iй клаузе
 
-            clause_roots, clause_nodes= self.build_syntax_tree(parsed_morph)
+            clause_roots, clause_nodes= self.build_syntax_tree(parsed_morph,None,hyp) #внутриклаузный анализ
+
             clause_root = clause_roots[0]
             if self.is_independent_clause(clause_nodes,clause_root):
                 nodes_in_sent +=[['indep', clause_root, clause_nodes]]
             else:
                 nodes_in_sent +=[['dep', clause_root, clause_nodes]]
 
+            if "HYP" in descriptor:
+                #print("тире")
+                if nodes_in_sent[-1][0] == "dep":
+                    hyp = True
 
-            if "SENT_END" in descriptor:
+            elif "COL" in descriptor:
+                #print("двоеточие")
+                col = True
+
+            elif "SENT_END" in descriptor:
 
                 sent_root = SyntaxNode("SENT", "SENT")
-
-                roots, nodes = self.build_syntax_tree([], nodes_in_sent)
+                roots, nodes = self.build_syntax_tree([], nodes_in_sent) #повторный межклаузный анализ
                 all_nodes += nodes
 
                 for root in roots:
@@ -101,28 +105,7 @@ class SintaxisAnalyzer:
 
                 root_sintax_tree.add_connection(sent_root, 'sentence')
 
-                purpose_statement = 0
-                if "?" in separator:
-                    purpose_statement = 2
-                elif "!" in separator:
-                    purpose_statement = 1
-                else:
-                    purpose_statement = 0
-
-                intonation = 0
-                if "!" in separator:
-                    intonation = 1
-                else:
-                    intonation = 0
-
-                complexity = 0
-                if (len(roots) == 1):
-                    complexity = 2
-                elif (len(sub_conj_sent)>0):
-                    complexity = 0
-                else:
-                    complexity = 1
-
+                purpose_statement, intonation, complexity = self.collect_info_by_sent(separator, roots, sub_conj_sent)
 
                 info_count_sent += 1
                 info_count_part_sent += [len(roots)]
@@ -133,74 +116,116 @@ class SintaxisAnalyzer:
                 info_common += [any(self.is_link_common(root)==True for root  in roots)]
                 info_homogeneous += [any(self.is_link_homogeneous(root)==True for root  in roots)]
 
-
+                hyp = False
+                col = False
                 nodes_in_sent = []
                 sub_conj_sent = []
                 coord_conj_sent = []
 
 
             #отладка
-            # print(parsed_morph)
-            # print(self.print_tree(clause_root))
+            print(parsed_morph)
+            print(self.print_tree(clause_root))
 
         text_info = info_count_sent, info_count_part_sent, info_two_part, info_purpose_statement, info_intonation,\
             info_complexity, info_common, info_homogeneous
 
         return root_sintax_tree, all_nodes, text_info, self.print_tree(root_sintax_tree)
 
-    def build_syntax_tree(self, parsed_tokens, clauses_list=None):
+    def collect_info_by_sent(self,separator,roots,sub_conj_sent):
+        purpose_statement = 0
+        if "?" in separator:
+            purpose_statement = 2
+        elif "!" in separator:
+            purpose_statement = 1
+        else:
+            purpose_statement = 0
+
+        intonation = 0
+        if "!" in separator:
+            intonation = 1
+        else:
+            intonation = 0
+
+        complexity = 0
+        if (len(roots) == 1):
+            complexity = 2
+        elif (len(sub_conj_sent) > 0):
+            complexity = 0
+        else:
+            complexity = 1
+
+        return purpose_statement, purpose_statement, complexity
+
+    def init_sintax_nodes(self,parsed_tokens):
+        nodes = []
+        for feat in parsed_tokens:
+            if feat["pos"]:
+                nodes += [SyntaxNode(feat['pos'], feat['lemma'], feat)]
+            else:
+                nodes += [SyntaxNode("UNDEFIND", feat['lemma'], feat)]
+        return nodes
+
+    def reformat_sintax_nodes(self,parsed_list):
+        nodes = []
+        for clause_info in parsed_list:
+            # nodes += clause_info[2]
+            for node in clause_info[2]:
+                if node == clause_info[1] and clause_info[0] == "indep":
+                    if node.type == "VERB":
+                        node.change_part_of_sent(PartOfSpeech.MAIN_PREDICATE)
+                    if node.type == "NOUN":
+                        node.change_part_of_sent(PartOfSpeech.MAIN_SUBJECT)
+                nodes += [node]
+        return nodes
+
+    def collect_main_and_predicate(self,parsed_nodes):
+        predicates = []
+        main = []
+        for i, node in enumerate(parsed_nodes):
+            if node.part_of_sentence in [PartOfSpeech.PREDICATE, PartOfSpeech.SUB_PREDICATE]:
+                predicates += [[node, i]]
+            if node.part_of_sentence == PartOfSpeech.MAIN_PREDICATE:
+                main += [[node, i]]
+                predicates += [[node, i]]
+            if node.part_of_sentence == PartOfSpeech.MAIN_SUBJECT:
+                 main += [[node, i]]
+        return main, predicates
+
+    def build_syntax_tree(self, parsed_tokens, clauses_list=None,is_hyphen = False):
         """Построение синтаксического дерева."""
         main = []
         nodes = []
+        predicates = []
+        main = []
+        self.predicate_nodes = []
+
         if clauses_list is None:
-            for feat in parsed_tokens:
-                if feat["pos"]:
-                    nodes += [SyntaxNode(feat['pos'], feat['lemma'], feat)]
-                else:
-                    nodes += [SyntaxNode("UNDEFIND", feat['lemma'], feat)]
-            self.predicate_nodes = []
+            nodes = self.init_sintax_nodes(parsed_tokens)
+            self.flag_finish_mode = False
+
         elif clauses_list:
-            nodes = []
-
-            for clause_info in clauses_list:
-                # nodes += clause_info[2]
-                for node in clause_info[2]:
-                    if node == clause_info[1] and clause_info[0] == "indep":
-                        if node.type == "VERB":
-                            node.change_part_of_sent(PartOfSpeech.MAIN_PREDICATE)
-                        if node.type == "NOUN":
-                            node.change_part_of_sent(PartOfSpeech.MAIN_SUBJECT)
-                    nodes += [node]
-
-            predicates = []
-            main = []
-            for i, node in enumerate(nodes):
-                if node.part_of_sentence in [PartOfSpeech.PREDICATE,PartOfSpeech.SUB_PREDICATE]:
-                    predicates += [[node, i]]
-                if node.part_of_sentence == PartOfSpeech.MAIN_PREDICATE:
-                    main += [[node, i]]
-                    predicates += [[node, i]]
-                # if node.part_of_sentence == PartOfSpeech.MAIN_SUBJECT:
-                #     main += [[node, i]]
-            self.predicate_nodes = predicates
+            nodes = self.reformat_sintax_nodes(clauses_list)
+            main, self.predicate_nodes = self.collect_main_and_predicate(nodes)
+            self.flag_finish_mode = True
 
         predicate_node = self._find_primary_predicate(nodes,main)
         subject_node = self._find_subject_with_predicate(nodes)
+        nominal_predicate_node = None
         definition_node = None
         circumstance_node = None
 
         for i, node in enumerate(nodes):
             if node.parent is None and \
-                    not(node.part_of_sentence in [PartOfSpeech.MAIN_PREDICATE,PartOfSpeech.MAIN_SUBJECT]):
-                _,subject_node,definition_node,circumstance_node =\
-                    self._process_node(
-                    node, i, nodes,
-                    predicate_node, subject_node,
-                    definition_node, circumstance_node
-                )
+                not(node.part_of_sentence in [PartOfSpeech.MAIN_PREDICATE,PartOfSpeech.MAIN_SUBJECT]):
 
-        return self._determine_root_node(nodes, main, predicate_node, subject_node, circumstance_node,
+                _,subject_node,definition_node,circumstance_node, nominal_predicate_node =\
+                    self._process_node(node, i, nodes,predicate_node,\
+                        subject_node,definition_node, circumstance_node,nominal_predicate_node)
+
+        return self._determine_root_node(nodes, main, predicate_node, subject_node,nominal_predicate_node, circumstance_node,
                                          definition_node), nodes
+
 
 
     # Вспомогательные методы
@@ -281,9 +306,6 @@ class SintaxisAnalyzer:
             return False
 
 
-
-
-
     def _find_primary_predicate(self, nodes, main):
         """Поиск основного сказуемого"""
         prime_pred = None
@@ -310,9 +332,10 @@ class SintaxisAnalyzer:
                     return node
         return None
 
-    def _process_node(self, node, i, nodes, predicate_node, subject_node, definition_node, circumstance_node):
+    def _process_node(self, node, i, nodes, predicate_node, subject_node, definition_node, circumstance_node,nominal_predicate_node):
         """Обработка отдельного узла"""
         subject_node = self._process_subject(node, i, predicate_node,subject_node)
+        nominal_predicate_node = self._process_nominal_predicate(node,nominal_predicate_node,subject_node)
         definition_node = self._process_definition(node, i, nodes, definition_node)
         definition_node = self._process_participle(node, i, nodes, definition_node)
         definition_node = self._process_definition_N_A(node, i, nodes, definition_node)
@@ -323,10 +346,38 @@ class SintaxisAnalyzer:
         self._process_preposition(node, i, nodes, predicate_node)
         self._process_genitive(node, i, nodes)
         self._process_adverbial_participle(node, nodes, circumstance_node, predicate_node, i)
-        return predicate_node, subject_node, definition_node, circumstance_node
+        return predicate_node, subject_node, definition_node, circumstance_node, nominal_predicate_node
+
+    def _process_nominal_predicate(self, node, nominal_predicate_node, subject_node):
+        if subject_node and node!=subject_node\
+                and not self.predicate_nodes and self.flag_finish_mode\
+                and not nominal_predicate_node and not node.parent:
+            if node.type in ["NOUN","NPRO"]:
+                if "nomn" in node.features.get('case'):
+                    # case_connect = self.check_common_word(node.features.get('case'),subject_node.features.get('case'))
+                    # case_null = node.features.get('case') == [] or subject_node.features.get('case') == []
+                    # num_connect = self.check_common_word(node.features.get('number'),subject_node.features.get('number'))
+                    # num_null = node.features.get('number') == [] or subject_node.features.get('number') == []
+                    # gender_connect = self.check_common_word(node.features.get('gender'),subject_node.features.get('gender'))
+                    # gender_null = node.features.get('gender') == [] or subject_node.features.get('gender') == []
+                    #if (case_connect or case_null) and (num_connect or num_null) and (gender_connect or gender_null):
+                    nominal_predicate_node = node
+                    node.change_part_of_sent(PartOfSpeech.PREDICATE)
+                    subject_node.add_connection(nominal_predicate_node,"nominal_pred")
+            elif node.type in ["ADJF_SHORT", "PARTICIPLE", "ADJF"]:
+                nominal_predicate_node = node
+                node.change_part_of_sent(PartOfSpeech.PREDICATE)
+                subject_node.add_connection(nominal_predicate_node, "nominal_pred")
+
+
+
+
+
+        return nominal_predicate_node
 
     def _process_subject(self, node, i, predicate_node, subject_node):
         """Обработка подлежащего"""
+
 
         if (node.type in ['NOUN', 'NPRO']
                 and "nomn" in node.features.get('case')
@@ -409,11 +460,11 @@ class SintaxisAnalyzer:
 
     def _process_definition_N_A(self, node, i, nodes,definition_node):
         """Обработка определений"""
-        if node.type == 'NPRO_ADVB' or node.type == 'NOUN_ADVB':
+        if node.type == 'NPRO_ADJF' or node.type == 'NOUN_ADJF':
             node.change_part_of_sent(PartOfSpeech.DEFINITION)
             if not node.connections:
                 closest_noun = next((n for n in nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
-                                     self.connect_adjf_to_n(node,n)), None)
+                                     (self.connect_adjf_to_n(node,n) or 1)), None)
                 if closest_noun:
                     closest_noun.add_connection(node, 'attribute')
             if definition_node == None:
@@ -443,19 +494,64 @@ class SintaxisAnalyzer:
 
     def _process_preposition(self, node, i, nodes, predicate_node):
         """Обработка предложных конструкций"""
+
         if node.type == 'PREP':
-            node.change_part_of_sent(PartOfSpeech.OBJECT)
             if  all(not(connect[0].type in ['NOUN', 'NPRO']) for connect in node.connections):
                 next_noun = next((n for n in nodes[i + 1:]
                                   if n.type in ['NOUN', 'NPRO'] and not (n.parent) and self.connect_pp_to_n(node, n)), None)
 
                 # Связываем предлог с дополнением
                 if next_noun and not (next_noun.parent):
-                    next_noun.change_part_of_sent(PartOfSpeech.OBJECT)
+                    part_of_speech = self._choose_role_prep_noum(node,next_noun)
+                    node.change_part_of_sent(part_of_speech)
+                    next_noun.change_part_of_sent(part_of_speech)
                     node.add_connection(next_noun, 'object')
                     # Связываем предлог с глаголом (сказуемым)
             if predicate_node:
                 self.connect_to_predicate(i, predicate_node, node, 'prepositional_object')
+
+    def _choose_role_prep_noum(self,prep,noun):
+        object_rules = [
+            {"preposition": ["к", "ко"], "case": "datv"},
+            {"preposition": ["по"], "case": "datv"},
+            {"preposition": ["над"], "case": "ablt"},
+            {"preposition": ["без"], "case": "gent"},
+            {"preposition": ["для"], "case": "gent"},
+            {"preposition": ["о", "об", "про"], "case": "loct"},
+            {"preposition": ["с", "со"], "case": "ablt"},
+            {"preposition": ["из"], "case": "gent"},  # если объект исключения (из группы)
+            {"preposition": ["от"], "case": "gent"},
+            {"preposition": ["у"], "case": "gent"},  # у дома (принадлежность)
+        ]
+        circumstance_rules = [
+            {"preposition": ["в", "во", "на"], "case": "accs"},  # направление (в парк)
+            {"preposition": ["в", "во", "на"], "case": "loct"},  # место (в парке)
+            {"preposition": ["из"], "case": "gent"},  # источник (из леса)
+            {"preposition": ["перед"], "case": "ablt"},  # время (перед закатом)
+            {"preposition": ["после"], "case": "gent"},  # время (после дождя)
+            {"preposition": ["ради"], "case": "gent"},  # цель (ради победы)
+            {"preposition": ["из-за"], "case": "gent"},  # причина (из-за тумана)
+            {"preposition": ["с"], "case": "accs"},  # время (с утра)
+            {"preposition": ["под"], "case": "ablt"},  # место (под землёй)
+            {"preposition": ["через"], "case": "accs"},  # время (через час)
+            {"preposition": ["до"], "case": "gent"},  # предел (до рассвета)
+        ]
+        for rule in object_rules:
+            if prep.features.get("word").lower() in rule["preposition"] \
+                    and self.check_common_word(noun.features.get("case"),[rule["case"]]):
+                return PartOfSpeech.OBJECT
+
+            # Проверка правил для обстоятельства
+        for rule in circumstance_rules:
+            prep_in_rule = prep.features.get("word").lower() in rule["preposition"]
+            case_connect = self.check_common_word(noun.features.get("case"),[rule["case"]])
+            if prep_in_rule and case_connect:
+                return PartOfSpeech.CIRCUMSTANCE
+
+            # Если не найдено совпадений, вернуть "дополнение" как значение по умолчанию
+        return PartOfSpeech.OBJECT
+
+
 
     def _process_circumstance(self, node, i, predicate_node, circumstance_node):
         """Обработка обстоятельств"""
@@ -474,9 +570,9 @@ class SintaxisAnalyzer:
         if (node.type in ['NOUN', 'NPRO']
                 and self.check_common_word(['gent', 'accs'] ,node.features.get('case'))#and 'gent' in node.features.get('case')
                 and not node.parent):
-            node.change_part_of_sent(PartOfSpeech.OBJECT)
             for n in reversed(nodes[:i]):
                 if n.type in ['NOUN', 'NPRO', "VERB", "INFI"]:
+                    node.change_part_of_sent(PartOfSpeech.OBJECT)
                     n.add_connection(node, 'genitive')
                     break
 
@@ -494,7 +590,7 @@ class SintaxisAnalyzer:
             elif predicate_node:
                 self.connect_to_predicate(i, predicate_node, node, 'circumstance')
 
-    def _determine_root_node(self, nodes, main, predicate_node, subject_node, circumstance_node, definition_node):
+    def _determine_root_node(self, nodes, main, predicate_node, subject_node, nominal_predicate_node, circumstance_node, definition_node):
         """Определение корневого узла"""
         main_nodes = [data[0] for data in main ]
         if main:
@@ -502,7 +598,11 @@ class SintaxisAnalyzer:
         if predicate_node:
             return [predicate_node]
         if subject_node:
+            #if nominal_predicate_node:
+                #subject_node.add_connection(nominal_predicate_node,"nominal_pred")
             return [subject_node]
+        if nominal_predicate_node:
+            return [nominal_predicate_node]
         if circumstance_node:
             return [circumstance_node]
         if definition_node:
@@ -562,8 +662,9 @@ class SintaxisAnalyzer:
     def is_independent_clause(self, nodes, root):
         has_subject = any(node.part_of_sentence == PartOfSpeech.SUBJECT for node in nodes)
         has_predicate = any(node.part_of_sentence == PartOfSpeech.PREDICATE for node in nodes)
-        root_is_predicate = (root.part_of_sentence == PartOfSpeech.PREDICATE)
-        return has_subject and has_predicate and root_is_predicate
+        root_is_predicate = (root.part_of_sentence in [PartOfSpeech.PREDICATE] )
+        root_is_subject = (root.part_of_sentence in [PartOfSpeech.SUBJECT] )
+        return has_subject and has_predicate and (root_is_predicate or root_is_subject)
 
     def check_common_word(self, arr1, arr2):
         return len(set(arr1) & set(arr2)) > 0
