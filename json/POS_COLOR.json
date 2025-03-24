@@ -1,6 +1,6 @@
 {
     "NOUN": "#FFD700",
-    "NOUN_ADVB": "#FFD700",
+    "NPRO_ADJF": "#FFD700",
     "VERB": "#FF6347",
     "INFI": "#F08080",
     "ADJF": "#87CEEB",
@@ -10,7 +10,7 @@
     "NUMR": "#FFDAB9",
     "PRCL": "#8B9467",
     "NPRO": "#FFA07A",
-    "NPRO_ADVB": "#FFA07A",
+    "NPRO_ADJF": "#FFA07A",
     "PART": "#C9E4CA",
     "PARTICIPLE":  "#87CEEB",
     "ADJF_SHORT": "#f44609",

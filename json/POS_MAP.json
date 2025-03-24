@@ -1,6 +1,6 @@
 {
   "N": "NOUN",
-  "NA": "NOUN_ADVB",
+  "NA": "NOUN_ADJF",
   "V": "VERB",
   "INFINITIVE": "INFI",
   "A": "ADJF",
@@ -10,7 +10,7 @@
   "NUM": "NUMR",
   "PART": "PRCL",
   "P": "NPRO",
-  "PA": "NPRO_ADVB",
+  "PA": "NPRO_ADJF",
   "PARTICLE" : "PART",
   "PARTICIPLE" : "PARTICIPLE",
   "ADJ_SHORT": "ADJF_SHORT",
