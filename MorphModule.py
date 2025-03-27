@@ -6,7 +6,7 @@ from ClauseSpliter import ClauseSplitter
 
 
 class MorphAnalyzer:
-    def __init__(self, lang=MorphLanguage.Russian,
+    def __init__(self, langRUS=MorphLanguage.Russian, langENG=MorphLanguage.English,
                  quantitative_numeral_path="json/QUANTITATIVE_NUMERAL.json",
                  collective_numeral_path="json/COLLECTIVE_NUMERAL.json",
                  prep_cases_path="json/PREPOSITION_CASES_ru.json",
@@ -14,7 +14,9 @@ class MorphAnalyzer:
                  pos_map_path="json/POS_MAP.json"):
 
         # Инициализация анализатора
-        self.morphan = MorphanHolder(lang)
+        self.morphan_RUS = MorphanHolder(langRUS)
+        self.morphan_ENG = MorphanHolder(langENG)
+        self.morphan = self.morphan_RUS
 
         # Загрузка словарей
         self.QUANTITATIVE_NUMERAL = FromJSON(quantitative_numeral_path)
@@ -30,14 +32,27 @@ class MorphAnalyzer:
     #     #print(f"Морфологический анализ:\n{result}\n")
     #     return result
 
-    def analyze_word(self, word, num_in_text=0):
+    def analyze_word(self, word, num_in_text=0,descriptors=["RLE"]):
         """Основной метод морфологического анализа"""
         likely_option = 0
         weight = -1
         max_len_features = 0
         data = []
+
+        is_rus_lemma = "RLE" in descriptors
+        is_eng_lemma = "LLE" in descriptors
+        is_composite = "COMPOSITE" in descriptors
+        is_maybe_name = "NAM?" in descriptors
+        is_URL = "URL" in descriptors or "EA" in descriptors or "FILE" in descriptors
+        is_digit = "DC" in descriptors or "DSC"in descriptors
+        #is_digit_lemma = "DSC"in descriptors
+
+        if is_composite or is_URL or is_digit or is_eng_lemma:
+            return None
+
+
         is_correct, is_change, word = self.check_correct(word)
-        if is_correct or not is_change:
+        if (is_correct or not is_change) and is_rus_lemma:
             for i, lemmInfo in enumerate(self.morphan.lemmatize(word)):
                 pos = self.normalize_pos(lemmInfo.part_of_speech)
                 lemma = lemmInfo.lemma
@@ -81,7 +96,7 @@ class MorphAnalyzer:
             if len(data)>0:
                 return data[likely_option]
 
-        return {"word": word,"lemma": word,"pos": [],"case": [],"number": [],"gender": [],"tense": [],"animacy": []}
+        return None#{"word": word,"lemma": word,"pos": [],"case": [],"number": [],"gender": [],"tense": [],"animacy": []}
 
     def parse_morph_features(self, morph_features, pos, lemma, word, is_correct):
         """Преобразует морфологические признаки в структурированный словарь"""
@@ -207,18 +222,15 @@ class MorphAnalyzer:
         else:
             correct_words = self.morphan.correct_misspell(word)
             if len(correct_words) != 0:
-                print(f"Слово {word} может быть исправленно на {correct_words}.")
-
-
-
+                #print(f"Слово {word} может быть исправленно на {correct_words}.")
                 return True, True,  self.the_most_popular_word(correct_words)# self.find_most_similar_word(word, correctWord)#correctWord[0]
         return False, False, word
 
     def the_most_popular_word(self, list):
         output = ""
-        max_weight = 0
+        max_weight = -1
         for correct_word in list:
-            weight_lem = 0
+            weight_lem = -1
             for i, lemmInfo in enumerate(self.morphan.lemmatize(correct_word)):
                 if lemmInfo.word_weight >= weight_lem:
                     weight_lem = lemmInfo.word_weight
@@ -267,7 +279,7 @@ class MorphAnalyzer:
 if __name__ == "__main__":
     analyzer = MorphAnalyzer()
 
-    text = ["его", "ее", "Арарат", "Москва", "youtube.com" ]
+    text = ["дождливым", "ее", "Арарат", "Москва", "youtube.com" ]
 
     print(analyzer.check_correct("чтл"))
 

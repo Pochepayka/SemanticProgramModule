@@ -26,8 +26,10 @@ class ProgramModule:
         num_in_text = 1
         for clause in self.clauses_res:
             morph_res_i_clause = []
-            for word in clause.get("tokens"):
-                morph_res_i_clause += [self.morph_analyzer.analyze_word(word,num_in_text)]
+            for token in clause.get("tokens"):
+                word = token.get("word")
+                descr = token.get("descriptors")
+                morph_res_i_clause += [self.morph_analyzer.analyze_word(word, num_in_text, descr)]
                 self.morph_res += [self.morph_analyzer.analyze_word(word,num_in_text)]
                 num_in_text+=1
             self.morph_res_for_clauses += [morph_res_i_clause]

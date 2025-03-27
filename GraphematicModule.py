@@ -13,17 +13,20 @@ class GraphematicAnalyzer:
         }
         # Списки союзов
         self.subordinating_conjunctions = [
-            "что", "чтобы", "как", "когда", "если", "хотя", "потому что",
-            "так как", "несмотря на то что", "в то время как", "пока",
-            "лишь", "будто", "чем", "дабы", "словно", "едва",
-            "как будто", "ибо", "оттого что", "для того чтобы",
-            "тогда как", "затем что", "по мере того как", "с тех пор как"
+            "что", "чтобы", "как", "когда", "если", "хотя", "пока",
+            "лишь", "будто", "чем", "дабы", "словно", "едва", "где", "ибо"]
+        self.subordinating_conjunctions_composite =[
+            "так как", "несмотря на то что", "в то время как", "потому что",
+            "как будто",  "оттого что", "для того чтобы", "тогда как",
+            "затем что", "по мере того как", "с тех пор как"
         ]
         self.coordinating_conjunctions = [
             "и", "а", "но", "да", "или", "либо", "тоже",
-            "также", "не только, но и", "как...так и",
-            "то ли...то ли", "или...или", "да и",
-            "однако", "зато", "притом", "причем"
+            "также", "однако", "зато", "притом", "причем"]
+
+        self.coordinating_conjunctions_composite = [
+            "не только, но и", "как...так и",
+            "то ли...то ли", "или...или", "да и"
         ]
 
     def analyze(self, text) -> List[Tuple[str, str]]:
@@ -35,10 +38,14 @@ class GraphematicAnalyzer:
 
     def tokenize(self):
         conjunction_pattern = r'\b(?:' + '|'.join(
-            re.escape(conj) for conj in self.subordinating_conjunctions + self.coordinating_conjunctions) + r')\b'
+            re.escape(conj) for conj in self.subordinating_conjunctions + self.coordinating_conjunctions + \
+            self.subordinating_conjunctions_composite + self.coordinating_conjunctions_composite) + r')\b'
+        conjunction_composite_pattern = r'\b(?:' + '|'.join(
+            re.escape(conj) for conj in self.subordinating_conjunctions_composite + self.coordinating_conjunctions_composite) + r')\b'
 
         patterns = [
             (conjunction_pattern, 'CONJ'),  # Союзы
+            (conjunction_composite_pattern, 'COMPOSITE'),  # Союзы
             (r'(?i)(https?://|www\.)\S+', 'URL'),
             (r'\b[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}\b', 'EA'),
             (r'(?:[a-zA-Z]:\\|\\\\|/)[^\s\\/]*(?:/[^\s\\/]*)*', 'FILE'),
@@ -67,10 +74,15 @@ class GraphematicAnalyzer:
                     sub_type = self.get_subtype(value, main_type)
 
                     # Проверяем на союзы
-                    if value.lower() in self.subordinating_conjunctions:
+                    if value.lower() in self.subordinating_conjunctions + self.subordinating_conjunctions_composite:
                         main_type = 'SUB_CONJ'
-                    elif value.lower() in self.coordinating_conjunctions:
+                    elif value.lower() in self.coordinating_conjunctions + self.coordinating_conjunctions_composite:
                         main_type = 'COORD_CONJ'
+
+                    # elif value.lower() in self.subordinating_conjunctions_composite:
+                    #     main_type = 'SUB_CONJ_composite'
+                    # elif value.lower() in self.coordinating_conjunctions_composite:
+                    #     main_type = 'COORD_CONJ_composite'
 
                     self.tokens.append({
                         'text': value,
@@ -169,7 +181,7 @@ class GraphematicAnalyzer:
 if __name__ == "__main__":
 
     text = """
-    Когда солнце взошло, мы отправились в путь, и дорога оказалась удивительно красивой. 
+    Когда солнце взошло, мы отправились в путь, и дорога оказалась удивительно красивой. There is good day! 
     http://ya.ru www.youtube.com ya@ya.com. Осень. Иван ушёл. Мама кричала: 'Вернёшься?!' Вечер - чудесное время!
     """
 

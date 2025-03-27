@@ -21,7 +21,7 @@
   "на": ["gent", "loct", "accs"],
   "в": ["loct", "accs", "datv"],
   "во": ["loct", "accs", "datv"],
-  "по": ["dat", "loct", "accs"],
+  "по": ["datv", "loct", "accs"],
   "с": ["ablt","gent"],"со": ["ablt","gent"],
   "над": ["ablt"],
   "о": ["loct"] ,

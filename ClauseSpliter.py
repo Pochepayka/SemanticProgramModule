@@ -94,12 +94,30 @@ class ClauseSplitter:
         for i, token in enumerate(graphems):
             graphem = token[0]
             descriptors = token[1]
-            if "PUN" in descriptors or "SUB_CONJ" in descriptors or "COORD_CONJ" in descriptors:
+            if "PUN" in descriptors  or "SUB_CONJ" in descriptors or "COORD_CONJ" in descriptors:
+                    #or "SUB_CONJ_composite" in descriptors or "COORD_CONJ_composite" in descriptors:
                 clause_separator = (clause_separator + " " + graphem).strip()
                 clause_descriptors = (clause_descriptors + " " + descriptors).strip()
                 if clause != []:
-                    try:
-                        if not("PUN" in graphems[i+1][1] or "SUB_CONJ" in graphems[i+2][1] or "COORD_CONJ" in graphems[i+2][1]):
+                    if not("HYP" in descriptors):
+                        try:
+                            if not("PUN" in graphems[i+1][1] \
+                                   or "SUB_CONJ" in graphems[i+2][1] or "COORD_CONJ" in graphems[i+2][1]):
+                                   #or "SUB_CONJ_composite" in graphems[i+2][1] or "COORD_CONJ_composite" in graphems[i+2][1]):
+                                clauses.append({
+                                    'tokens': clause,
+                                    'separator': clause_separator,
+                                    'descriptor': clause_descriptors,
+                                    'sub_conjunctions': clause_sub_conjunction,
+                                    'coord_conjunctions': clause_coord_conjunction,
+                                })
+                                clause = []
+                                clause_separator = ""
+                                clause_descriptors = ""
+                                clause_sub_conjunction = []
+                                clause_coord_conjunction = []
+
+                        except:
                             clauses.append({
                                 'tokens': clause,
                                 'separator': clause_separator,
@@ -112,20 +130,6 @@ class ClauseSplitter:
                             clause_descriptors = ""
                             clause_sub_conjunction = []
                             clause_coord_conjunction = []
-
-                    except:
-                        clauses.append({
-                            'tokens': clause,
-                            'separator': clause_separator,
-                            'descriptor': clause_descriptors,
-                            'sub_conjunctions': clause_sub_conjunction,
-                            'coord_conjunctions': clause_coord_conjunction,
-                        })
-                        clause = []
-                        clause_separator = ""
-                        clause_descriptors = ""
-                        clause_sub_conjunction = []
-                        clause_coord_conjunction = []
                 else:
 
                     clause_separator = ""
@@ -136,7 +140,14 @@ class ClauseSplitter:
                     clause_sub_conjunction += [graphem.lower()]
                 if "COORD_CONJ" in descriptors:
                     clause_coord_conjunction += [graphem.lower()]
-                clause += [graphem]
+
+                # if "SUB_CONJ_composite" in descriptors:
+                #     clause_sub_conjunction += [graphem.lower()]
+                # if "COORD_CONJ_composite" in descriptors:
+                #     clause_coord_conjunction += [graphem.lower()]
+
+                clause += [{"word": graphem,
+                            "descriptors": descriptors}]
 
         return clauses
 

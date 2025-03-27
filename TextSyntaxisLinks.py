@@ -25,6 +25,7 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
         PartOfSpeech.MAIN_SUBJECT: {'color': 'blue', 'linewidth': 2},
         PartOfSpeech.MAIN_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         PartOfSpeech.SUB_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
+        PartOfSpeech.NOMINAL_PREDICATE: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         #PartOfSpeech.MAIN: {'color': 'red', 'linewidth': 3, 'linestyle': (0, (6, 2))},
         PartOfSpeech.DEFINITION: {"linestyle": ":", "color": "purple", "linewidth": 2},
         PartOfSpeech.SUBJECT: {'color': 'blue', 'linewidth': 2},
@@ -61,12 +62,16 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
 
     # Рисуем связи между узлами
     connection_levels = {}  # Словарь для отслеживания уровней связей
+    conections = {}
     max_levels = 5  # Максимальное количество уровней для смещения
     i_level = 3
     for node in nodes:
         # print(node.features.get("word"))
         if node.parent and node.parent.features.get("num_in_text"):
             try:
+                child_id = node.features["num_in_text"]
+                parent_id = node.parent.features["num_in_text"]
+
                 child_x, child_y = token_positions[node.features["num_in_text"]]
                 parent_x, parent_y = token_positions[node.parent.features["num_in_text"]]
 
@@ -74,12 +79,30 @@ def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):
                 if (child_x, child_y) == (parent_x, parent_y):
                     continue
 
-                if connection_levels.get((parent_x, parent_y, child_y)):
-                    level = connection_levels.get((parent_x, parent_y, child_y))
+                if connection_levels.get((parent_x, parent_y,  child_y)):
+                    level = connection_levels.get((parent_x, parent_y,  child_y))
+
                 else:
-                    connection_levels[(parent_x, parent_y, child_y)] = i_level
-                    level = i_level
-                    i_level = 1 + ((i_level+1) % max_levels)
+                    level = None
+                    for i in range (1,max_levels+1):
+                        if not(conections.get((parent_y,i))):
+                            level = i
+                            connection_levels[(parent_x, parent_y, parent_y)] = i
+                            conections[(parent_y,i)]=(min(parent_x,child_x),max((parent_x,child_x)))
+                            break
+                        else:
+                            beg, end = conections.get((parent_y,i),(10000000,-1))
+                            if max(parent_x,child_x)<beg or min(parent_x,child_x)>end:
+                                level = i
+                                connection_levels[(parent_x, parent_y, parent_y)] = i
+                                conections[(parent_y,i)]=(min(beg,parent_x,child_x),max((end,parent_x,child_x)))
+                                break
+                    if not level:
+                        connection_levels[(parent_x, parent_y, parent_y)] = i_level
+                        beg, end = conections.get((parent_y, i_level), (10000000, -1))
+                        conections[(parent_y,i_level)]=(min(beg,parent_x,child_x),max((end,parent_x,child_x)))
+                        level = i_level
+                        i_level = 1 + ((i_level+1) % max_levels)
 
                 # print (node.parent.features.get("word"),node.features.get("word"),level)
                 # print (connection_levels)
