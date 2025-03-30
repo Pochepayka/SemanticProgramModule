@@ -1,5 +1,5 @@
 
-from SintaxisModule import PartOfSpeech
+from SintaxisModule_NEW import PartOfSpeech
 import matplotlib.pyplot as plt
 
 

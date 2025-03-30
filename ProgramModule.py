@@ -1,7 +1,7 @@
 from GraphematicModule import GraphematicAnalyzer
 from MorphModule import MorphAnalyzer
 from ClauseSpliter import ClauseSplitter
-from SintaxisModule import SintaxisAnalyzer
+from SintaxisModule_NEW import SintaxisAnalyzer
 from VisualizeTree import visualize_tree
 from TextSyntaxisLinks import visualize_syntax_links
 
