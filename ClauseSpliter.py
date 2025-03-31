@@ -90,6 +90,7 @@ class ClauseSplitter:
         clause_coord_conjunction = []
         clause_separator = ""
         clause_descriptors = ""
+        clause_begin = ""
 
         for i, token in enumerate(graphems):
             graphem = token[0]
@@ -131,7 +132,6 @@ class ClauseSplitter:
                             clause_sub_conjunction = []
                             clause_coord_conjunction = []
                 else:
-
                     clause_separator = ""
                     clause_descriptors = ""
 

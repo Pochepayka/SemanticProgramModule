@@ -47,12 +47,13 @@ class MorphAnalyzer:
         is_digit = "DC" in descriptors or "DSC"in descriptors
         #is_digit_lemma = "DSC"in descriptors
 
-        if is_composite or is_URL or is_digit or is_eng_lemma:
-            return None
+        # if is_composite or is_URL or is_digit or is_eng_lemma:
+        #     return {"word": word,"lemma": word,"pos": []}
+
 
 
         is_correct, is_change, word = self.check_correct(word)
-        if (is_correct or not is_change) and is_rus_lemma:
+        if is_correct or not is_change and (is_rus_lemma or is_digit or is_URL ):
             for i, lemmInfo in enumerate(self.morphan.lemmatize(word)):
                 pos = self.normalize_pos(lemmInfo.part_of_speech)
                 lemma = lemmInfo.lemma
@@ -96,7 +97,7 @@ class MorphAnalyzer:
             if len(data)>0:
                 return data[likely_option]
 
-        return None#{"word": word,"lemma": word,"pos": [],"case": [],"number": [],"gender": [],"tense": [],"animacy": []}
+        return {"word": word,"lemma": word,"pos": []}#None#
 
     def parse_morph_features(self, morph_features, pos, lemma, word, is_correct):
         """Преобразует морфологические признаки в структурированный словарь"""
@@ -279,7 +280,7 @@ class MorphAnalyzer:
 if __name__ == "__main__":
     analyzer = MorphAnalyzer()
 
-    text = ["дождливым", "ее", "Арарат", "Москва", "youtube.com" ]
+    text = ["по","следам","оставленным", "оставленные", "путниками", "которые ", "прошли ", "ранее" ]
 
     print(analyzer.check_correct("чтл"))
 
@@ -288,8 +289,8 @@ if __name__ == "__main__":
     #word = "гуляю"
     for word in text:
         # Анализ слова
-        print("\nАнализ слова:")
-        print(analyzer.analyze_word(word))
+        #print("\nАнализ слова:")
+        #print(analyzer.analyze_word(word))
 
         # Полная информация о слове
         print("\nПолная информация:")

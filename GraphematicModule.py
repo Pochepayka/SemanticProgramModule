@@ -14,7 +14,7 @@ class GraphematicAnalyzer:
         # Списки союзов
         self.subordinating_conjunctions = [
             "что", "чтобы", "как", "когда", "если", "хотя", "пока",
-            "лишь", "будто", "чем", "дабы", "словно", "едва", "где", "ибо"]
+            "лишь", "будто", "чем", "дабы", "словно", "едва", "где", "ибо","которые","который","которая"]
         self.subordinating_conjunctions_composite =[
             "так как", "несмотря на то что", "в то время как", "потому что",
             "как будто",  "оттого что", "для того чтобы", "тогда как",
@@ -79,7 +79,7 @@ class GraphematicAnalyzer:
                     elif value.lower() in self.coordinating_conjunctions + self.coordinating_conjunctions_composite:
                         main_type = 'COORD_CONJ'
 
-                    # elif value.lower() in self.subordinating_conjunctions_composite:
+                    # if value.lower() in self.subordinating_conjunctions_composite:
                     #     main_type = 'SUB_CONJ_composite'
                     # elif value.lower() in self.coordinating_conjunctions_composite:
                     #     main_type = 'COORD_CONJ_composite'
@@ -109,9 +109,9 @@ class GraphematicAnalyzer:
             elif text.isspace():
                 return 'SPC'
         elif token_type == 'PUN':
-            if text in '([{«“':
+            if text in '([{«“\'':
                 return 'OPN'
-            elif text in ')]}»”':
+            elif text in ')]}»”\'':
                 return 'CLS'
             elif text in ('-', '—'):
                 return 'HYP'
