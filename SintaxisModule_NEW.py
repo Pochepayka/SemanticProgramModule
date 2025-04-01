@@ -171,6 +171,9 @@ class SintaxisAnalyzer:
         prime_predicate = None
         i = 0
         for clause_info in parsed_list:
+
+            print(clause_info)
+
             for node in clause_info[2]:
                 if node == clause_info[1] and clause_info[0] == "indep":
                     main += [[node, i]]
@@ -223,7 +226,8 @@ class SintaxisAnalyzer:
 
 
         for i, node in enumerate(self.nodes):
-            self._prep_process_node(node,i)
+            #if node.parent is None:
+                self._prep_process_node(node,i)
 
         for i, node in enumerate(self.nodes):
             if node.parent is None and \
@@ -372,6 +376,8 @@ class SintaxisAnalyzer:
         self._collect_primary_predicate(node, i)
         self._collect_means_action(node, i)
         self._collect_subject_nodes(node, i)
+        self._process_definition(node,i)
+        self._process_definition_N_A(node,i)
         self._collect_nominal_predicate(node,i)
         self._process_preposition(node, i)
         self._process_particle(node,i)
@@ -413,12 +419,15 @@ class SintaxisAnalyzer:
                 and (self.is_indept or (self.is_hyphen and self.subject_node)) :
 
             if ((node.type in ["NOUN","NPRO"] and "nomn" in node.features.get('case'))
-                    or node.type in ["ADJF_SHORT", "PARTICIPLE_SHORT", "PARTICIPLE", "ADJF","ADVB"]):
+                    or node.type in ["ADJF_SHORT", "PARTICIPLE_SHORT", "PARTICIPLE", "ADJF"]):#,"ADVB"
                     self.nominal_predicate_node = node
                     node.change_part_of_sent(PartOfSpeech.NOMINAL_PREDICATE)
 
                     if [node, i] not in self.means_action:
                         self.means_action.append([node, i])
+
+                    if [node, i] not in self.nominal_predicate_nodes:
+                        self.nominal_predicate_nodes.append([node, i])
 
     def _collect_subject_nodes(self, node, i):
 
@@ -446,9 +455,9 @@ class SintaxisAnalyzer:
         """Обработка отдельного узла"""
         self._process_infinitive(node, i)
         self._process_subject(node, i)
-        self._process_definition(node, i)
         self._process_participle(node, i)
-        self._process_definition_N_A(node, i)
+        #self._process_definition(node, i)
+        #self._process_definition_N_A(node, i)
         self._process_nominal_predicate(node, i)
         self._process_circumstance(node, i)
         self._process_verb(node, i)
@@ -485,7 +494,8 @@ class SintaxisAnalyzer:
     #определение <- прилагательное
     def _process_definition(self, node, i):
         """Обработка определений"""
-        if node.type == 'ADJF' and node.features.get('case') != []:
+        if (node.type == 'ADJF' and node.features.get('case') != []
+                and node is not self.nominal_predicate_node and node.parent is None):
             node.change_part_of_sent(PartOfSpeech.DEFINITION)
             if not node.connections:
                 closest_noun = next((n for n in self.nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
@@ -501,7 +511,7 @@ class SintaxisAnalyzer:
     #определение <- местоимение числительное
     def _process_definition_N_A(self, node, i):
         """Обработка определений"""
-        if node.type == 'NPRO_ADJF' or node.type == 'NOUN_ADJF':
+        if (node.type == 'NPRO_ADJF' or node.type == 'NOUN_ADJF') and node.parent is None:
             node.change_part_of_sent(PartOfSpeech.DEFINITION)
             if not node.connections:
                 closest_noun = next((n for n in self.nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
@@ -516,27 +526,38 @@ class SintaxisAnalyzer:
 
     #номинальное сказуемое <- сущ мест прич прил кр.прил кр.прич
     def _process_nominal_predicate(self, node, i):
+
         if (node!=self.subject_node and not self.predicate_node
-                and not node.parent)\
+                and not node.parent and not self.nominal_predicate_node)\
                 and (self.is_indept or (self.is_hyphen and self.subject_node)) :
-                #and not self.nominal_predicate_node
+
 
             if ((node.type in ["NOUN","NPRO"] and "nomn" in node.features.get('case'))
-                    or node.type in ["ADJF_SHORT", "PARTICIPLE_SHORT", "PARTICIPLE", "ADJF", "ADVB"]):
+                    or node.type in ["ADJF_SHORT", "PARTICIPLE_SHORT", "PARTICIPLE", "ADJF", "ADVB"]):#
                     self.nominal_predicate_node = node
                     node.change_part_of_sent(PartOfSpeech.NOMINAL_PREDICATE)
 
-                    if self.subject_node:
-                        self.subject_node.add_connection(self.nominal_predicate_node,"nominal_pred")
-
                     if [node, i] not in self.means_action:
                         self.means_action.append([node, i])
+
+                    if [node, i] not in self.nominal_predicate_nodes:
+                        self.nominal_predicate_nodes.append([node, i])
+
+
+        if self.nominal_predicate_node is node:
+            if self.subject_node:
+                node.change_part_of_sent(PartOfSpeech.NOMINAL_PREDICATE)
+                self.subject_node.add_connection(self.nominal_predicate_node, "nominal_pred")
+
+
+
 
     #обстоятельство <- наречие кр.прил кр.прич
     def _process_circumstance(self, node, i):
         """Обработка обстоятельств"""
         if ((node.type in ['ADVB', "ADJF_SHORT","PARTICIPLE_SHORT"]
-                or node.type == 'ADJF' and not node.features.get('case')) and node.parent is None):
+                or node.type == 'ADJF' and not node.features.get('case'))
+                and node.parent is None and node is not self.nominal_predicate_node):
 
             if not node.part_of_sentence:
                 node.change_part_of_sent(PartOfSpeech.CIRCUMSTANCE)
@@ -575,31 +596,54 @@ class SintaxisAnalyzer:
     #определение\судпредикат <- причастие
     def _process_participle(self, node, i):
         """Обработка причастий"""
-        if node.type in ["PARTICIPLE"]:
+        if (node.type in ["PARTICIPLE"]
+                and node is not self.nominal_predicate_node
+                and node.parent is None):
 
             node.change_part_of_sent(PartOfSpeech.DEFINITION)
             if [node,i] not in self.means_action:
                 self.means_action.append([node, i])
 
+            closest_noun = None
+            if self.predicate_nodes != [] and not self.flag_finish_mode:
+                #обособление отсутствует
+                closest_noun = next((n for n in self.nodes[i + 1:]
+                                     if n.type in ['NOUN', 'NPRO']
+                                     and self.connect_adjf_to_n(node, n)), None)
 
-            #!!!! closest_noun = next((n for n in self.nodes[i + 1:] if n.type in ['NOUN', 'NPRO'] and
-            #!!!!                      self.connect_adjf_to_n(node, n)), None)
-            #!!!! if not closest_noun:
-            closest_noun = next((n for n in self.nodes if n.type in ['NOUN', 'NPRO'] and
-                                 self.connect_adjf_to_n(node, n)), None)
+            if closest_noun is None:
+                    closest_noun = next((n for n in reversed(self.nodes[:i])
+                                         if n.type in ['NOUN', 'NPRO']
+                                         and self.connect_adjf_to_n(node, n)),None)
+                                    # next((n for n in reversed(self.nodes[i + 1:])
+                                    #       if n.type in ['NOUN', 'NPRO']
+                                    #       and self.connect_adjf_to_n(node, n)),None))
+            if self.flag_finish_mode and closest_noun is None:
+                closest_noun = next((n for n in self.nodes[i + 1:]
+                                           if n.type in ['NOUN', 'NPRO']
+                                           and self.connect_adjf_to_n(node, n)),None)
 
-            if closest_noun:
-                if closest_noun.parent:
-                    if closest_noun.parent.type in ["PREP"]:
-                        if closest_noun.parent.features.get('num_in_text')>node.features.get('num_in_text'):
-                            closest_noun = None
-            if closest_noun and self.flag_finish_mode:#!!!!!
-                if "trans" in node.features.get("trans") and not node.connections:
-                    noun = next((n for n in self.nodes[i + 1:]
-                                 if n.type in ['NOUN', 'NPRO'] and not (n.parent)), None)
-                    if noun:
-                        noun.change_part_of_sent(PartOfSpeech.OBJECT)
-                        node.add_connection(noun, 'genitive')
+
+            noun = None
+            if not node.connections and not self.flag_finish_mode:
+                if "trans" in node.features.get("trans"):
+                    if "passiv" in node.features.get("pledge"):
+                        noun = next((n for n in self.nodes[i + 1:]
+                                     if n.type in ['NOUN', 'NPRO']
+                                     and (n is not closest_noun)
+                                     and not (n.parent) and "ablt" in n.features.get("case")), None)
+
+                    elif "activ" in node.features.get("pledge"):
+                        noun = next((n for n in self.nodes[i + 1:]
+                                     if n.type in ['NOUN', 'NPRO']
+                                     and (n is not closest_noun)
+                                     and not (n.parent) and "accs" in n.features.get("case")), None)
+
+            if noun:
+                noun.change_part_of_sent(PartOfSpeech.OBJECT)
+                node.add_connection(noun, 'genitive')
+
+            if closest_noun:  # and self.flag_finish_mode:#!!!!!
                 closest_noun.add_connection(node, 'attribute')
             elif self.flag_finish_mode:
                 self.connect_to_predicate(i, node, 'sub_predicate')
@@ -612,7 +656,7 @@ class SintaxisAnalyzer:
     def _process_preposition(self, node, i):
         """Обработка предложных конструкций"""
 
-        if node.type == 'PREP':
+        if node.type == 'PREP' and node.parent is None:
             if  all(not(connect[0].type in ['NOUN', 'NPRO']) for connect in node.connections):
                 next_noun = next((
                     n for n in self.nodes[i + 1:]
@@ -637,13 +681,12 @@ class SintaxisAnalyzer:
     def _process_genitive(self, node, i):
         """Обработка родительного падежа"""
         if (node.type in ['NOUN', 'NPRO']
-                and self.check_common_word(['gent', 'accs', "ablt"],
-                                           node.features.get('case'))
-                                        #  and 'gent' in node.features.get('case')
+                and self.check_common_word(['gent', 'accs', "ablt"], node.features.get('case'))
                 and not node.parent and node != self.nominal_predicate_node):
                                         #  and node != subject_node):#
             for n in reversed(self.nodes[:i]):
-                if n.type in ['NOUN', 'NPRO', "VERB", "INFI","PARTICIPLE"]:
+                if n.type in ['NOUN', 'NPRO', "VERB", "INFI"] and n.parent is not node:
+                    #,"PARTICIPLE"
                     node.change_part_of_sent(PartOfSpeech.OBJECT)
                     n.add_connection(node, 'genitive')
                     if node == self.subject_node:
@@ -660,6 +703,8 @@ class SintaxisAnalyzer:
                              if n.type in ['NOUN', 'NPRO'] and not (n.parent)), None)
                 if noun:
                     noun.change_part_of_sent(PartOfSpeech.OBJECT)
+                    if node is self.subject_node:
+                        self.subject_node = None
                     node.add_connection(noun, 'genitive')
 
             node.change_part_of_sent(PartOfSpeech.CIRCUMSTANCE)
@@ -679,13 +724,16 @@ class SintaxisAnalyzer:
         """Определение корневого узла"""
         if self.main:
             main_nodes = [data[0] for data in self.main]
-            if self.predicate_node and not self.predicate_node in main_nodes:
-                main_nodes += [self.predicate_node]
+            # if self.predicate_node and not self.predicate_node in main_nodes :
+            #     main_nodes += [self.predicate_node]
+            main_nodes += [pred[0]
+                           for pred in self.predicate_nodes + self.nominal_predicate_nodes
+                           if ((not pred[0] in main_nodes) and (pred[0].parent is None))]
             return main_nodes
         if self.predicate_node:
             return [self.predicate_node]
         if self.subject_node:
-            self.subject_node.change_part_of_sent(PartOfSpeech.SUBJECT)
+            #self.subject_node.change_part_of_sent(PartOfSpeech.SUBJECT)
             return [self.subject_node]
         if self.nominal_predicate_node:
             return [self.nominal_predicate_node]
@@ -705,7 +753,7 @@ class SintaxisAnalyzer:
         text = []
         def _traverse(node,level=0,relation=''):
             text.append(' ' * level + f'└─ {relation} {node}')
-            #print(' ' * level + f'└─ {relation} {node}')
+            print(' ' * level + f'└─ {relation} {node}')
 
             for child, rel in node.connections:
                 _traverse(child, level + 1, rel)
@@ -747,22 +795,41 @@ class SintaxisAnalyzer:
         # Во всех остальных случаях — не зависит
         return False
 
+
     def connect_adjf_to_n(self,node,n):
 
-        numbers = []
-        genders = []
-        for var in n.features.get("variants"):
-            if self.check_common_word(node.features.get("case") ,var):
-                numbers += [var[1]]
-                genders += [var[2]]
+        connect_case = self._connect_by_case(n,node)
+        connect_number = self._connect_by_num(n,node)
+        connect_gender = self._connect_by_gender(n,node)
+        correct_position = True
 
-        return( self.check_common_word(node.features.get("case") ,n.features.get("case"))
-                and (self.check_common_word(node.features.get("number"), numbers) or
-                numbers == [] or
-                node.features.get("number") == []) and
-                (self.check_common_word(node.features.get("gender"), genders) or
-                genders == [] or
-                node.features.get("gender") == []))
+
+        if n and node.type is "PARTICIPLE":
+            if n.parent:
+                num_parent = n.parent.features.get('num_in_text')
+                num_noun = n.features.get('num_in_text')
+                num_adjf = node.features.get('num_in_text')
+                if num_adjf < num_parent < num_noun or num_adjf > num_parent > num_noun:
+                    correct_position = False
+
+
+        return (connect_case and connect_number and connect_gender and correct_position)
+
+        # numbers = []
+        # genders = []
+        # for var in n.features.get("variants"):
+        #     if self.check_common_word(node.features.get("case") ,var):
+        #         numbers += [var[1]]
+        #         genders += [var[2]]
+
+
+        # return( self.check_common_word(node.features.get("case") ,n.features.get("case"))
+        #         and (self.check_common_word(node.features.get("number"), numbers) or
+        #         numbers == [] or
+        #         node.features.get("number") == []) and
+        #         (self.check_common_word(node.features.get("gender"), genders) or
+        #         genders == [] or
+        #         node.features.get("gender") == []))
 
         # print (n.lemma,[node.features.get("case")[0],
         #     node.features.get("number")[0],

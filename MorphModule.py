@@ -70,7 +70,7 @@ class MorphAnalyzer:
                     "tense": morph_features["tense"],
                     "animacy": morph_features["animacy"],
                     "trans": morph_features["trans"],
-                    #"pledge": morph_features["pledge"],
+                    "pledge": morph_features["pledge"],
                     "type": morph_features["type"],
                     "variants": morph_features["variants"],
                     "is_numeral": morph_features["is_numeral"],
@@ -109,7 +109,7 @@ class MorphAnalyzer:
             'tense': [],
             "trans" : [],
             "type" : [],
-            # "pledge" : [],
+            "pledge" : [],
             "variants": [],
             "is_numeral" : False,
             "is_proper_name" : False,
@@ -132,10 +132,10 @@ class MorphAnalyzer:
                 result['trans'].append(self.MORPH_FEATURE_MAP.get(feature))
             elif feature in {'perf','imperf'}:
                 result['type'].append(self.MORPH_FEATURE_MAP.get(feature))
+            elif feature in {"pass", "act"}:
+                result['pledge'].append(self.MORPH_FEATURE_MAP.get(feature))
             elif feature in {"loc", "name", "surname", "sing_tant"}:
                 result['is_proper_name'] = True
-            # elif feature in {}:
-            #     result['pledge'].append(self.MORPH_FEATURE_MAP.get(feature))
 
         if pos == "NOUN" and not result["number"]:
             result["number"] += self.QUANTITATIVE_NUMERAL.get(lemma, [])
@@ -280,7 +280,7 @@ class MorphAnalyzer:
 if __name__ == "__main__":
     analyzer = MorphAnalyzer()
 
-    text = ["по","следам","оставленным", "оставленные", "путниками", "которые ", "прошли ", "ранее" ]
+    text = ["употреблённый","превративший"]
 
     print(analyzer.check_correct("чтл"))
 
@@ -290,9 +290,9 @@ if __name__ == "__main__":
     for word in text:
         # Анализ слова
         #print("\nАнализ слова:")
-        #print(analyzer.analyze_word(word))
+        print(analyzer.analyze_word(word))
 
         # Полная информация о слове
-        print("\nПолная информация:")
+        #print("\nПолная информация:")
         for info in analyzer.get_word_info(word):
             print(info)

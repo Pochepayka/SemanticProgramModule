@@ -1,5 +1,7 @@
 {
   "nom": "nomn",
+  "pass": "passiv",
+  "act": "activ",
   "gen": "gent",
   "dat": "datv",
   "acc": "accs",
