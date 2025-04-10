@@ -109,9 +109,21 @@ class ProgramModule:
 
 
         print("\nСемантический анализ:")
-        print(self.semantic_analyzer.raund(sintaxis_root))
+        subjects, actions, objects, datas = self.semantic_analyzer.round(sintaxis_root)
+        print(subjects)
+        print(actions)
+        print(objects)
+        for data in datas:
+            print("[",end = "")
+            for type in data:
+                print("[",end = "")
+                for item in type:
+                    #print(item)
+                    if not(item is None):
+                        print(item.features.get("word"),end = " ")
 
-
+                print("]",end = "")
+            print("]\n")
 
     def graphem_res(self):
         graphems_res = self.graphematic_analyzer.analyze(self.TEXT)
