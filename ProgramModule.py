@@ -62,8 +62,9 @@ class ProgramModule:
 
 
         print("\nСемантический анализ:")
-        subjects, actions, objects, datas = self.semantic_res(sintaxis_root)
         
+        subjects, actions, objects, datas = self.semantic_res(sintaxis_root)
+ 
         print(subjects)
         print(actions)
         print(objects)
