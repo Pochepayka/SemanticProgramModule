@@ -166,12 +166,16 @@ class GraphematicAnalyzer:
         return any(c in text for c in '.!?') and not text.startswith('...')
 
     def format_results(self) -> List[Tuple[str, str]]:
+
         formatted = []
         for token in self.tokens:
+            processed_text = token['text']
             # Заменяем только пробельные символы
-            processed_text = token['text'].translate(
-                str.maketrans(self.special_chars)
-            )
+            if "DEL" in token['descriptors']:
+                processed_text = token['text'].translate(
+                    str.maketrans(self.special_chars)
+                )
+            
             desc = ' '.join(token['descriptors'])
             formatted.append((processed_text, desc))
         return formatted

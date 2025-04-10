@@ -18,38 +18,6 @@ class ProgramModule:
 
 
 
-
-        # self.graphems_res = self.graphematic_analyzer.analyze(self.TEXT)
-        #
-        # self.clauses_res = self.clause_spliter.split_into_clauses(self.graphems_res)
-        # self.words_res = self.clause_spliter.split_into_words(self.graphems_res)
-        # self.tokens_res = self.clause_spliter.split_into_tokens(self.graphems_res)
-        #
-        # self.morph_res_for_clauses = []
-        # self.morph_res = []
-        # num_in_text = 1
-        # for clause in self.clauses_res:
-        #     morph_res_i_clause = []
-        #     for token in clause.get("tokens"):
-        #         word = token.get("word")
-        #         descr = token.get("descriptors")
-        #         morph_res_i_clause += [self.morph_analyzer.analyze_word(word, num_in_text, descr)]
-        #         self.morph_res += [self.morph_analyzer.analyze_word(word,num_in_text)]
-        #         num_in_text+=1
-        #     self.morph_res_for_clauses += [morph_res_i_clause]
-        #
-        # self.sintaxis_root, self.sintaxis_nodes, self.sintaxis_text_info, self.sintaxis_tree_in_txt = \
-        #     self.sintaxis_analyzer.analyze(self.clauses_res, self.morph_res_for_clauses)
-        #
-        #
-        # # self.graphems_res = None
-        # # self.clauses_res = None
-        # # self.words_res = None
-        # # self.tokens_res = None
-        # # self.morph_res = None
-        # # self.morph_res_for_clauses = None
-        # # self.text_info = None
-
     def main(self,num_test):
 
         graphems_res = self.graphem_res()
@@ -87,29 +55,16 @@ class ProgramModule:
 
 
         sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt =\
-            self.sintaxis_res(clauses_res, morph_res_for_clauses)
+            self.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res, num_test)
 
         print("\nСинтаксический анализ:")
         print(sintaxis_tree_in_txt)
 
-        text_info = self.print_text_info(sintaxis_text_info)
-        path_info = self.visual_result.save_txt(text_info, f"test_{num_test}_info")
-        #text_info = self.visual_result.load_txt(path_info)
-
-        graph = self.visual_result.create_graph(sintaxis_root)
-        path_graph = self.visual_result.save_graph(graph, f"test_{num_test}_graph")
-        #graph = self.visual_result.load_graph(path_graph)
-
-        plt_graph = self.visual_result.visualize_graph(graph)
-        #path_graph_plt = self.visual_result.save_plt_png(plt_graph,f"test{num_test}_treeA")
-
-        plt_text = self.visual_result.visualize_syntax_links(sintaxis_nodes,tokens_res)
-        #path_text_plt = self.visual_result.save_plt_png(plt_text, f"test{num_test}_textA")
-
-
 
         print("\nСемантический анализ:")
-        subjects, actions, objects, datas = self.semantic_analyzer.round(sintaxis_root)
+        
+        subjects, actions, objects, datas = self.semantic_res(sintaxis_root)
+ 
         print(subjects)
         print(actions)
         print(objects)
@@ -151,11 +106,34 @@ class ProgramModule:
 
         return morph_res_for_clauses, morph_res
 
-    def sintaxis_res(self,clauses_res, morph_res_for_clauses):
+    def sintaxis_res(self, clauses_res, morph_res_for_clauses, tokens_res, num_test = 0, ):
         sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt =\
              self.sintaxis_analyzer.analyze(clauses_res,morph_res_for_clauses)
+        
+
+        text_info = self.print_text_info(sintaxis_text_info)
+        path_info = self.visual_result.save_txt(text_info, f"test_{num_test}_info")
+        #text_info = self.visual_result.load_txt(path_info)
+
+        graph = self.visual_result.create_graph(sintaxis_root)
+        path_graph = self.visual_result.save_graph(graph, f"test_{num_test}_graph")
+        #graph = self.visual_result.load_graph(path_graph)
+
+        #plt_graph = self.visual_result.visualize_graph(graph)
+        #path_graph_plt = self.visual_result.save_plt_png(plt_graph,f"test{num_test}_treeA")
+
+        #plt_text = self.visual_result.visualize_syntax_links(sintaxis_nodes,tokens_res)
+        #path_text_plt = self.visual_result.save_plt_png(plt_text, f"test{num_test}_textA")
 
         return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt
+    
+    def semantic_res(self, sintaxis_root):
+        subjects, actions, objects, datas = self.semantic_analyzer.round(sintaxis_root)
+
+        
+
+        return subjects, actions, objects, datas
+
 
 
     @staticmethod
@@ -205,7 +183,7 @@ class ProgramModule:
             \tПо наличию второстепенных членов: {info_homogeneous[i]}
             \tПо наличию однородных членов: {info_common[i]}\n"""
 
-        print(f"\nИнформация о тексте:\n{text_info}")
+        #print(f"\nИнформация о тексте:\n{text_info}")
 
         return f"\nИнформация о тексте:\n{text_info}"
 
