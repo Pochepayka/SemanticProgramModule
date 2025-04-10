@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d3" for="edge" attr.name="color" attr.type="string" />
+  <key id="d2" for="edge" attr.name="relation" attr.type="string" />
+  <key id="d1" for="node" attr.name="color" attr.type="string" />
+  <key id="d0" for="node" attr.name="label" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="125454076677520">
+      <data key="d0">pos: ROOT
+case: None
+word: </data>
+      <data key="d1">#FF000F</data>
+    </node>
+    <node id="125454076676848">
+      <data key="d0">pos: SENT
+case: None
+word: </data>
+      <data key="d1">#FFF00F</data>
+    </node>
+    <node id="125454076676704">
+      <data key="d0">pos: PART_SENT
+case: None
+word: </data>
+      <data key="d1">#BFF00F</data>
+    </node>
+    <node id="125454076677280">
+      <data key="d0">pos: VERB
+case: []
+word: мыла</data>
+      <data key="d1">#FF6347</data>
+    </node>
+    <node id="125454076677040">
+      <data key="d0">pos: NOUN
+case: ['nomn']
+word: Мама</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="125454076677376">
+      <data key="d0">pos: NOUN
+case: ['accs']
+word: раму</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="125454076676896">
+      <data key="d0">pos: SENT
+case: None
+word: </data>
+      <data key="d1">#FFF00F</data>
+    </node>
+    <node id="125454076677136">
+      <data key="d0">pos: PART_SENT
+case: None
+word: </data>
+      <data key="d1">#BFF00F</data>
+    </node>
+    <node id="125454076677424">
+      <data key="d0">pos: VERB
+case: []
+word: спал</data>
+      <data key="d1">#FF6347</data>
+    </node>
+    <node id="125454076677472">
+      <data key="d0">pos: NOUN
+case: ['nomn']
+word: Папа</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <edge source="125454076677520" target="125454076676848">
+      <data key="d2">sentence</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076677520" target="125454076676896">
+      <data key="d2">sentence</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076676848" target="125454076676704">
+      <data key="d2">indep+dep</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076676704" target="125454076677280">
+      <data key="d2">part</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076677280" target="125454076677040">
+      <data key="d2">subject</data>
+      <data key="d3">#2E74B5</data>
+    </edge>
+    <edge source="125454076677280" target="125454076677376">
+      <data key="d2">genitive</data>
+      <data key="d3">#808080</data>
+    </edge>
+    <edge source="125454076676896" target="125454076677136">
+      <data key="d2">indep+dep</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076677136" target="125454076677424">
+      <data key="d2">part</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="125454076677424" target="125454076677472">
+      <data key="d2">subject</data>
+      <data key="d3">#2E74B5</data>
+    </edge>
+  </graph>
+</graphml>

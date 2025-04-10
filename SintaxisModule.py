@@ -172,7 +172,7 @@ class SintaxisAnalyzer:
         i = 0
         for clause_info in parsed_list:
 
-            print(clause_info)
+            #print(clause_info)
 
             for node in clause_info[2]:
                 if node == clause_info[1] and clause_info[0] == "indep":

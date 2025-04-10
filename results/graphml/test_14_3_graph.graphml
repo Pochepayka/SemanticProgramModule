@@ -1,0 +1,345 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d3" for="edge" attr.name="color" attr.type="string" />
+  <key id="d2" for="edge" attr.name="relation" attr.type="string" />
+  <key id="d1" for="node" attr.name="color" attr.type="string" />
+  <key id="d0" for="node" attr.name="label" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="135773529463472">
+      <data key="d0">pos: ROOT
+case: None
+word: </data>
+      <data key="d1">#FF000F</data>
+    </node>
+    <node id="135773529463808">
+      <data key="d0">pos: SENT
+case: None
+word: </data>
+      <data key="d1">#FFF00F</data>
+    </node>
+    <node id="135773529464960">
+      <data key="d0">pos: PART_SENT
+case: None
+word: </data>
+      <data key="d1">#BFF00F</data>
+    </node>
+    <node id="135773529464672">
+      <data key="d0">pos: VERB
+case: []
+word: полагали</data>
+      <data key="d1">#FF6347</data>
+    </node>
+    <node id="135773529464768">
+      <data key="d0">pos: NPRO
+case: ['nomn']
+word: они</data>
+      <data key="d1">#FFA07A</data>
+    </node>
+    <node id="135773529464624">
+      <data key="d0">pos: NPRO_ADJF
+case: ['accs', 'nomn']
+word: которые</data>
+      <data key="d1">#FFA07A</data>
+    </node>
+    <node id="135773529463952">
+      <data key="d0">pos: NOUN
+case: ['nomn']
+word: Путники</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529463520">
+      <data key="d0">pos: PARTICIPLE
+case: ['accs', 'nomn']
+word: уставшие</data>
+      <data key="d1">#87CEEB</data>
+    </node>
+    <node id="135773529463280">
+      <data key="d0">pos: PREP
+case: ['gent']
+word: до</data>
+      <data key="d1">#DDA0DD</data>
+    </node>
+    <node id="135773529463328">
+      <data key="d0">pos: NOUN
+case: ['gent']
+word: предела</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529463616">
+      <data key="d0">pos: ADVB
+case: []
+word: ещё</data>
+      <data key="d1">#98FB98</data>
+    </node>
+    <node id="135773529464240">
+      <data key="d0">pos: ADVB_PARTICIPLE
+case: []
+word: ориентируя</data>
+      <data key="d1">#55f609</data>
+    </node>
+    <node id="135773529464288">
+      <data key="d0">pos: PREP
+case: ['datv', 'loct', 'accs']
+word: по</data>
+      <data key="d1">#DDA0DD</data>
+    </node>
+    <node id="135773529464432">
+      <data key="d0">pos: NOUN
+case: ['datv']
+word: следам</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529464384">
+      <data key="d0">pos: ADJF
+case: ['datv', 'ablt']
+word: заметным</data>
+      <data key="d1">#87CEEB</data>
+    </node>
+    <node id="135773529464576">
+      <data key="d0">pos: PARTICIPLE
+case: ['datv', 'ablt']
+word: оставленны</data>
+      <data key="d1">#87CEEB</data>
+    </node>
+    <node id="135773529464480">
+      <data key="d0">pos: NOUN
+case: ['ablt']
+word: путниками</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529464528">
+      <data key="d0">pos: ADJF
+case: ['ablt']
+word: редкими</data>
+      <data key="d1">#87CEEB</data>
+    </node>
+    <node id="135773529464336">
+      <data key="d0">pos: ADVB
+case: []
+word: едва</data>
+      <data key="d1">#98FB98</data>
+    </node>
+    <node id="135773529463424">
+      <data key="d0">pos: PARTICIPLE
+case: ['accs', 'nomn']
+word: надеявшиес</data>
+      <data key="d1">#87CEEB</data>
+    </node>
+    <node id="135773529463376">
+      <data key="d0">pos: INFI
+case: []
+word: добраться</data>
+      <data key="d1">#F08080</data>
+    </node>
+    <node id="135773529463088">
+      <data key="d0">pos: PREP
+case: ['gent']
+word: до</data>
+      <data key="d1">#DDA0DD</data>
+    </node>
+    <node id="135773529463232">
+      <data key="d0">pos: NOUN
+case: ['gent', 'accs', 'nomn']
+word: селения</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529463664">
+      <data key="d0">pos: NPRO_ADJF
+case: ['accs', 'nomn']
+word: всё</data>
+      <data key="d1">#FFA07A</data>
+    </node>
+    <node id="135773529463760">
+      <data key="d0">pos: PREP
+case: ['gent']
+word: до</data>
+      <data key="d1">#DDA0DD</data>
+    </node>
+    <node id="135773529464000">
+      <data key="d0">pos: NOUN
+case: ['gent', 'accs', 'nomn']
+word: наступлени</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529463904">
+      <data key="d0">pos: NOUN
+case: ['gent']
+word: темноты</data>
+      <data key="d1">#FFD700</data>
+    </node>
+    <node id="135773529464096">
+      <data key="d0">pos: VERB
+case: []
+word: продолжали</data>
+      <data key="d1">#FF6347</data>
+    </node>
+    <node id="135773529464144">
+      <data key="d0">pos: INFI
+case: []
+word: двигаться</data>
+      <data key="d1">#F08080</data>
+    </node>
+    <node id="135773529464192">
+      <data key="d0">pos: ADVB
+case: []
+word: вперёд</data>
+      <data key="d1">#98FB98</data>
+    </node>
+    <node id="135773529463136">
+      <data key="d0">pos: VERB
+case: []
+word: могли</data>
+      <data key="d1">#FF6347</data>
+    </node>
+    <node id="135773529464816">
+      <data key="d0">pos: INFI
+case: []
+word: пройти</data>
+      <data key="d1">#F08080</data>
+    </node>
+    <node id="135773529463184">
+      <data key="d0">pos: ADVB
+case: []
+word: здесь</data>
+      <data key="d1">#98FB98</data>
+    </node>
+    <node id="135773529464864">
+      <data key="d0">pos: ADVB
+case: []
+word: ранее</data>
+      <data key="d1">#98FB98</data>
+    </node>
+    <edge source="135773529463472" target="135773529463808">
+      <data key="d2">sentence</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529463808" target="135773529464960">
+      <data key="d2">indep+dep</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529464960" target="135773529464672">
+      <data key="d2">part</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529464672" target="135773529464768">
+      <data key="d2">subject</data>
+      <data key="d3">#2E74B5</data>
+    </edge>
+    <edge source="135773529464672" target="135773529463952">
+      <data key="d2">subject</data>
+      <data key="d3">#2E74B5</data>
+    </edge>
+    <edge source="135773529464672" target="135773529464096">
+      <data key="d2">homogeneous</data>
+      <data key="d3">#FF4500</data>
+    </edge>
+    <edge source="135773529464672" target="135773529463136">
+      <data key="d2">homogeneous</data>
+      <data key="d3">#FF4500</data>
+    </edge>
+    <edge source="135773529464768" target="135773529464624">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529463952" target="135773529463520">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529463952" target="135773529463424">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529463520" target="135773529463280">
+      <data key="d2">prepositional_object</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529463520" target="135773529463616">
+      <data key="d2">adverbial</data>
+      <data key="d3">#4B0082</data>
+    </edge>
+    <edge source="135773529463280" target="135773529463328">
+      <data key="d2">object</data>
+      <data key="d3">#8B4513</data>
+    </edge>
+    <edge source="135773529463616" target="135773529464240">
+      <data key="d2">homogeneous</data>
+      <data key="d3">#FF4500</data>
+    </edge>
+    <edge source="135773529464240" target="135773529464288">
+      <data key="d2">prepositional_object</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529464240" target="135773529464336">
+      <data key="d2">adverbial</data>
+      <data key="d3">#4B0082</data>
+    </edge>
+    <edge source="135773529464288" target="135773529464432">
+      <data key="d2">object</data>
+      <data key="d3">#8B4513</data>
+    </edge>
+    <edge source="135773529464432" target="135773529464384">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529464432" target="135773529464576">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529464576" target="135773529464480">
+      <data key="d2">genitive</data>
+      <data key="d3">#808080</data>
+    </edge>
+    <edge source="135773529464480" target="135773529464528">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529463424" target="135773529463376">
+      <data key="d2">sub_predicate</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529463376" target="135773529463088">
+      <data key="d2">prepositional_object</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529463376" target="135773529463760">
+      <data key="d2">prepositional_object</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529463088" target="135773529463232">
+      <data key="d2">object</data>
+      <data key="d3">#8B4513</data>
+    </edge>
+    <edge source="135773529463232" target="135773529463664">
+      <data key="d2">attribute</data>
+      <data key="d3">#3CB371</data>
+    </edge>
+    <edge source="135773529463760" target="135773529464000">
+      <data key="d2">object</data>
+      <data key="d3">#8B4513</data>
+    </edge>
+    <edge source="135773529464000" target="135773529463904">
+      <data key="d2">genitive</data>
+      <data key="d3">#808080</data>
+    </edge>
+    <edge source="135773529464096" target="135773529464144">
+      <data key="d2">sub_predicate</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529464144" target="135773529464192">
+      <data key="d2">adverbial</data>
+      <data key="d3">#4B0082</data>
+    </edge>
+    <edge source="135773529463136" target="135773529464816">
+      <data key="d2">sub_predicate</data>
+      <data key="d3">#000000</data>
+    </edge>
+    <edge source="135773529464816" target="135773529463184">
+      <data key="d2">adverbial</data>
+      <data key="d3">#4B0082</data>
+    </edge>
+    <edge source="135773529464816" target="135773529464864">
+      <data key="d2">adverbial</data>
+      <data key="d3">#4B0082</data>
+    </edge>
+  </graph>
+</graphml>
