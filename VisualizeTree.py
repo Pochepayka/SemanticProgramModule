@@ -97,6 +97,7 @@ class VisualResult:
         plt.tight_layout()
         plt.show()
         return plt
+    
 
     @staticmethod
     def visualize_syntax_links(nodes, tokens, max_tokens_per_line=8):

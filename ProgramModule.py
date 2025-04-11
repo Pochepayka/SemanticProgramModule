@@ -54,7 +54,7 @@ class ProgramModule:
 
 
 
-        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt =\
+        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml,graph =\
             self.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res, num_test)
 
         print("\nСинтаксический анализ:")
@@ -116,16 +116,22 @@ class ProgramModule:
         #text_info = self.visual_result.load_txt(path_info)
 
         graph = self.visual_result.create_graph(sintaxis_root)
+
+
         path_graph = self.visual_result.save_graph(graph, f"test_{num_test}_graph")
         #graph = self.visual_result.load_graph(path_graph)
 
         #plt_graph = self.visual_result.visualize_graph(graph)
         #path_graph_plt = self.visual_result.save_plt_png(plt_graph,f"test{num_test}_treeA")
 
-        #plt_text = self.visual_result.visualize_syntax_links(sintaxis_nodes,tokens_res)
+        # plt_text = self.visual_result.visualize_syntax_links(sintaxis_nodes,tokens_res)
         #path_text_plt = self.visual_result.save_plt_png(plt_text, f"test{num_test}_textA")
 
-        return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt
+
+
+
+
+        return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_graph, graph
     
     def semantic_res(self, sintaxis_root):
         subjects, actions, objects, datas = self.semantic_analyzer.round(sintaxis_root)
@@ -134,6 +140,46 @@ class ProgramModule:
 
         return subjects, actions, objects, datas
 
+
+
+    @staticmethod
+    def collect_links_and_node(nodes, tokens):
+        tokens_res = []
+        links_res = []
+        print(nodes)
+        # Сначала создаем все токены с пустым pos
+        tokens_res = [{"id": str(token[1]), "text": token[0], "pos": ""} for token in tokens]
+        
+        # Создаем словарь для быстрого поиска токенов по id
+        token_dict = {token['id']: token for token in tokens_res}
+        
+        for node in nodes:
+            node_id = str(node.features.get("num_in_text"))
+            
+            # Если токен с таким id существует, обновляем его pos
+            if node_id in token_dict:
+                token_dict[node_id]['pos'] = node.part_of_sentence.value
+            else:
+                # Если токена нет в исходном списке, добавляем новый
+                new_token = {
+                    "id": node_id,
+                    "text": node.features.get("word"),
+                    "pos": node.part_of_sentence.value
+                }
+                tokens_res.append(new_token)
+                token_dict[node_id] = new_token
+                
+            
+            if node.parent and node.parent.features.get("num_in_text"):
+                child = node
+                child_num = child.features.get("num_in_text")
+                parent = node.parent
+                parent_num = parent.features.get("num_in_text")
+                link = child.link_to_parent
+                #tokens_res+=[{id:}]
+                links_res += [{"from": parent_num, "to": child_num, "type": link}]
+
+        return tokens_res,links_res
 
 
     @staticmethod

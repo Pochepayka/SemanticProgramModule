@@ -22,12 +22,14 @@ class SyntaxNode:
         self.children = children or []
         self.connections = []
         self.parent = None
+        self.link_to_parent = ""
 
     def change_part_of_sent(self, part_of_speech):
         self.part_of_sentence = part_of_speech
 
     def add_connection(self, node, relation):
         node.parent = self
+        node.link_to_parent = relation
         self.connections.append((node, relation))
 
     def __repr__(self):
