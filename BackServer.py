@@ -78,7 +78,7 @@ def graphml_to_json(graphml_path):
         with open(graphml_path, 'r', encoding='utf-8') as f:
             xml_data = f.read()
         
-        graphml_dict = xmltodict.parse(xml_data)
+        graphml_dict = xmltodict.parse(xml_data) # type: ignore
         
         nodes = []
         edges = []
@@ -268,7 +268,7 @@ def BuildSintaxisTree():
     # Получаем данные графа
     graphData = parse_graphml(path_to_graphml)
 
-    print(f"\n\n\n {graphData} \n\n\n")
+    # print(f"\n\n\n {graphData} \n\n\n")
 
     # Отправляем ответ обратно
     return jsonify({
