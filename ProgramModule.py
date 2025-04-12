@@ -231,7 +231,7 @@ class ProgramModule:
 
         #print(f"\nИнформация о тексте:\n{text_info}")
 
-        return f"\nИнформация о тексте:\n{text_info}"
+        return f"Информация о тексте:\n{text_info}"
 
 
 

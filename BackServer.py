@@ -235,6 +235,8 @@ def SintaxisAnalyze():
     tokens, links = PM.collect_links_and_node(sintaxis_nodes,tokens_res)
 
 
+    sintaxis_text_info_txt = PM.print_text_info(sintaxis_text_info)
+
         # print(f"\n\n\n {tokens_res} \n\n\n")
 
 
@@ -243,8 +245,9 @@ def SintaxisAnalyze():
         'message': f'Сервер получил: "{received_text}" (длина: {len(received_text)} символов)',
         # 'sintaxis_root': sintaxis_root,
         # 'sintaxis_nodes': sintaxis_nodes,
-        # 'sintaxis_text_info': sintaxis_text_info,
-        # 'sintaxis_tree_in_txt': sintaxis_tree_in_txt,
+        'sintaxis_text_info': sintaxis_text_info,
+        #'sintaxis_tree_in_txt': sintaxis_tree_in_txt,
+        "sintaxis_text_info_txt" : sintaxis_text_info_txt, 
         'tokens': tokens,
         "links" : links,
     })
