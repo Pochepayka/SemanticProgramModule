@@ -170,5 +170,4 @@ def test14_3():
 
 
 if __name__ == "__main__":
-    print()
-    test14_3()
+    test14()

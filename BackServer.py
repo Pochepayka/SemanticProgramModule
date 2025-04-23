@@ -10,8 +10,6 @@ import tempfile
 
 
 
-
-
 def syntax_node_to_dict(node, include_parent=False):
     if node is None:
         return None
@@ -153,7 +151,13 @@ def parse_graphml(file_path):
 
 
 app = Flask(__name__)
-CORS(app)  # Разрешаем CORS для React
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["*"],
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 @app.route('/api/GraphematicAnalyze', methods=['POST'])
 def GraphematicAnalyze():
@@ -296,9 +300,9 @@ def SemanticAnalize():
     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
     morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
     sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph = PM.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res)
-    subjects, actions, objects, datas = PM.semantic_res(sintaxis_root)
+    datas = PM.semantic_res(sintaxis_root)
 
-    #print(datas)
+    print(datas,"\n")
 
     serializable_result = convert_nested_lists_to_dict(datas)
     print(serializable_result)
@@ -321,4 +325,4 @@ def handle_data():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

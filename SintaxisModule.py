@@ -634,6 +634,9 @@ class SintaxisAnalyzer:
                                      if n.type in ['NOUN', 'NPRO']
                                      and (n is not closest_noun)
                                      and not (n.parent) and "ablt" in n.features.get("case")), None)
+                        if noun:
+                            noun.change_part_of_sent(PartOfSpeech.OBJECT)
+                            node.add_connection(noun, 'active_object')
 
                     elif "activ" in node.features.get("pledge"):
                         noun = next((n for n in self.nodes[i + 1:]
@@ -641,9 +644,9 @@ class SintaxisAnalyzer:
                                      and (n is not closest_noun)
                                      and not (n.parent) and "accs" in n.features.get("case")), None)
 
-            if noun:
-                noun.change_part_of_sent(PartOfSpeech.OBJECT)
-                node.add_connection(noun, 'genitive')
+                        if noun:
+                            noun.change_part_of_sent(PartOfSpeech.OBJECT)
+                            node.add_connection(noun, 'passive_object')
 
             if closest_noun:  # and self.flag_finish_mode:#!!!!!
                 closest_noun.add_connection(node, 'attribute')

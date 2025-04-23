@@ -23,33 +23,32 @@ class ProgramModule:
         graphems_res = self.graphem_res()
 
         print("\nГрафематический анализ:")
-        for graphem in graphems_res:
-            print(f"{graphem[0]}\t{graphem[1]}")
-
+        #for graphem in graphems_res:
+            #print(f"{graphem[0]}\t{graphem[1]}")
 
 
 
         clauses_res, words_res, tokens_res = self.spliter_res(graphems_res)
 
         print("\nРазделение на кляузы:")
-        for clause in clauses_res:
-            print(clause)
+        #for clause in clauses_res:
+            #print(clause)
 
         print("\nРазделение на слова:")
-        for word in words_res:
-            print(word)
+        #for word in words_res:
+        #    print(word)
 
         print("\nРазделение на токены:")
-        for token in tokens_res:
-            print(token)
+        #for token in tokens_res:
+        #    print(token)
 
 
 
         morph_res_for_clauses, morph_res = self.morph_res(clauses_res)
 
         print("\nМорфологический анализ:")
-        for morph in morph_res:
-            print(morph)
+        #for morph in morph_res:
+        #    print(morph)
 
 
 
@@ -58,27 +57,29 @@ class ProgramModule:
             self.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res, num_test)
 
         print("\nСинтаксический анализ:")
-        print(sintaxis_tree_in_txt)
+
+        #print(sintaxis_tree_in_txt)
 
 
         print("\nСемантический анализ:")
         
-        subjects, actions, objects, datas = self.semantic_res(sintaxis_root)
+        datas = self.semantic_res(sintaxis_root)
  
-        print(subjects)
-        print(actions)
-        print(objects)
+        #print(datas)
         for data in datas:
-            print("[",end = "")
-            for type in data:
-                print("[",end = "")
-                for item in type:
-                    #print(item)
-                    if not(item is None):
-                        print(item.features.get("word"),end = " ")
+            print(data)
+        
+        # for data in datas:
+        #     print("[",end = "")
+        #     for type in data:
+        #         print("[",end = "")
+        #         for item in type:
+        #             #print(item)
+        #             if not(item is None):
+        #                 print(item,end = " ")#.features.get("word")
 
-                print("]",end = "")
-            print("]\n")
+        #         print("]",end = "")
+        #     print("]\n")
 
     def graphem_res(self):
         graphems_res = self.graphematic_analyzer.analyze(self.TEXT)
@@ -134,11 +135,11 @@ class ProgramModule:
         return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_graph, graph
     
     def semantic_res(self, sintaxis_root):
-        subjects, actions, objects, datas = self.semantic_analyzer.round(sintaxis_root)
+        datas = self.semantic_analyzer.round(sintaxis_root)
 
         
 
-        return subjects, actions, objects, datas
+        return datas
 
 
 

@@ -117,6 +117,14 @@ class GraphematicAnalyzer:
                 return 'HYP'
             elif text in (':'):
                 return 'COL'
+            elif text in ('.'):
+                return 'DOT'
+            elif text in (','):
+                return 'COM'
+            elif text in ('!'):
+                return 'BAG'
+            elif text in ('?'):
+                return 'ASC'
             if len(text) > 1:
                 return 'PLP' if len(text) <= 20 else 'DPUN'
         return ''
