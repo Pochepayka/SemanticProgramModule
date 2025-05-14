@@ -8,7 +8,9 @@ def DoAnalyze(text,num_test):
     module.main(num_test)
 
 
-
+def test0():
+    text = """Мама мыла раму."""
+    DoAnalyze(text,"0")
 
 def test1():
     text = """Две старые кошки, 
@@ -170,4 +172,4 @@ def test14_3():
 
 
 if __name__ == "__main__":
-    test14()
+    test0()

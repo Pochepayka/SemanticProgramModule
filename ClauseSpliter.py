@@ -90,7 +90,6 @@ class ClauseSplitter:
         clause_coord_conjunction = []
         clause_separator = ""
         clause_descriptors = ""
-        clause_begin = ""
 
         for i, token in enumerate(graphems):
             graphem = token[0]
@@ -148,7 +147,14 @@ class ClauseSplitter:
 
                 clause += [{"word": graphem,
                             "descriptors": descriptors}]
-
+        if len(clause)>0:
+            clauses.append({
+                                'tokens': clause,
+                                'separator': clause_separator,
+                                'descriptor': "END_TEXT",
+                                'sub_conjunctions': clause_sub_conjunction,
+                                'coord_conjunctions': clause_coord_conjunction,
+                            })
         return clauses
 
 
@@ -163,6 +169,7 @@ if __name__ == "__main__":
 Он любит кофе, она — чай.
 На столе лежали фрукты: яблоки, бананы и апельсины.
     """
+    text = "Мама мыла раму."
     graphems = GraphematicAnalyzer().analyze(text)
 
     clause_spliter = ClauseSplitter()

@@ -9,35 +9,6 @@ import os
 import tempfile
 
 
-
-def syntax_node_to_dict(node, include_parent=False):
-    if node is None:
-        return None
-    
-    result = {
-        'type': node.type,
-        'lemma': node.lemma,
-        'features': node.features,
-        'part_of_sentence': str(node.part_of_sentence),  # Convert enum to string
-        'children': [syntax_node_to_dict(child, include_parent) for child in node.children],
-        'connections': [
-            {
-                'type': conn.type if hasattr(conn, 'type') else str(conn),
-                'target': syntax_node_to_dict(conn.target, include_parent) if hasattr(conn, 'target') else None
-            } 
-            for conn in node.connections
-        ]
-    }
-    
-    # Optional: include parent reference if needed (but beware of circular references)
-    if include_parent and node.parent:
-        result['parent'] = {
-            'type': node.parent.type,
-            'lemma': node.parent.lemma
-        }
-    
-    return result
-
 def convert_nested_lists_to_dict(nested_lists):
     """
     Рекурсивно преобразует вложенные структуры в словари.
@@ -68,47 +39,7 @@ def convert_nested_lists_to_dict(nested_lists):
             'word': None,
             'part_of_sentence': None
         }
-
-# Преобразуем GraphML в JSON
-def graphml_to_json(graphml_path):
-    """Конвертирует GraphML файл в JSON для фронтенда"""
-    try:
-        with open(graphml_path, 'r', encoding='utf-8') as f:
-            xml_data = f.read()
-        
-        graphml_dict = xmltodict.parse(xml_data) # type: ignore
-        
-        nodes = []
-        edges = []
-        
-        # Обработка узлов
-        for node in graphml_dict['graphml']['graph']['node']:
-            node_data = {
-                'id': node['@id'],
-                'label': next((d['#text'] for d in node['data'] if d['@key'] == 'd0'), '').split('word: ')[-1],
-                'color': next((d['#text'] for d in node['data'] if d['@key'] == 'd1'), '#FFFFFF'),
-                'pos': next((d['#text'] for d in node['data'] if d['@key'] == 'd0'), '').split('pos: ')[1].split('\n')[0] if 'pos: ' in next((d['#text'] for d in node['data'] if d['@key'] == 'd0'), '') else ''
-            }
-            nodes.append(node_data)
-        
-        # Обработка связей
-        for edge in graphml_dict['graphml']['graph']['edge']:
-            edge_data = {
-                'from': edge['@source'],
-                'to': edge['@target'],
-                'label': next((d['#text'] for d in edge['data'] if d['@key'] == 'd2'), ''),
-                'color': next((d['#text'] for d in edge['data'] if d['@key'] == 'd3'), '#000000')
-            }
-            edges.append(edge_data)
-        
-        return {'nodes': nodes, 'edges': edges}
-        
-    except Exception as e:
-        print(f"Ошибка при конвертации GraphML: {str(e)}")
-        return {'nodes': [], 'edges': []}
-
-
-
+    
 # Функция конвертации GraphML в JSON (без xmltodict)
 def parse_graphml(file_path):
     """Парсим GraphML с помощью стандартного xml.etree"""
@@ -163,11 +94,9 @@ CORS(app, resources={
 def GraphematicAnalyze():
     data = request.json
     received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
+    #print(f"Получен текст с фронтенда: {received_text}")
 
+    PM = ProgramModule(received_text)
     graph_res = PM.graphem_res()
 
     # Отправляем ответ обратно
@@ -181,14 +110,11 @@ def GraphematicAnalyze():
 def Spliter():
     data = request.json
     received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
+    #print(f"Получен текст с фронтенда: {received_text}")
 
+    PM = ProgramModule(received_text)
     graph_res = PM.graphem_res()
     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
-    #print(clauses_res)
 
     # Отправляем ответ обратно
     return jsonify({
@@ -203,15 +129,12 @@ def Spliter():
 def MorphAnalyze():
     data = request.json
     received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
+    #print(f"Получен текст с фронтенда: {received_text}")
 
+    PM = ProgramModule(received_text)
     graph_res = PM.graphem_res()
     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
     morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
-    print (morph_res)
 
     # Отправляем ответ обратно
     return jsonify({
@@ -226,91 +149,80 @@ def MorphAnalyze():
 def SintaxisAnalyze():
     data = request.json
     received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
+    #print(f"Получен текст с фронтенда: {received_text}")
 
+    PM = ProgramModule(received_text)
     graph_res = PM.graphem_res()
     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
     morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
-    sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph = PM.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res)
+    sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph, sintaxis_text_info_txt = PM.sintaxis_res(morph_res_for_clauses)
 
-    tokens, links = PM.collect_links_and_node(sintaxis_nodes,tokens_res)
+    tokens, links = PM.collect_links_and_node(sintaxis_nodes, tokens_res)
 
-
-    sintaxis_text_info_txt = PM.print_text_info(sintaxis_text_info)
-
-        # print(f"\n\n\n {tokens_res} \n\n\n")
-
-
-    # Отправляем ответ обратно
-    return jsonify({
-        'message': f'Сервер получил: "{received_text}" (длина: {len(received_text)} символов)',
-        # 'sintaxis_root': sintaxis_root,
-        # 'sintaxis_nodes': sintaxis_nodes,
-        'sintaxis_text_info': sintaxis_text_info,
-        #'sintaxis_tree_in_txt': sintaxis_tree_in_txt,
-        "sintaxis_text_info_txt" : sintaxis_text_info_txt, 
-        'tokens': tokens,
-        "links" : links,
-    })
-
-@app.route('/api/BuildSintaxisTree', methods=['POST'])
-def BuildSintaxisTree():
-    data = request.json
-    received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
-
-    graph_res = PM.graphem_res()
-    clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
-    morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
-    sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph = PM.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res)
-
-
-
-    # Получаем данные графа
     graphData = parse_graphml(path_to_graphml)
 
-    # print(f"\n\n\n {graphData} \n\n\n")
 
     # Отправляем ответ обратно
     return jsonify({
         'message': f'Сервер получил: "{received_text}" (длина: {len(received_text)} символов)',
-        # 'sintaxis_root': sintaxis_root,
-        # 'sintaxis_nodes': sintaxis_nodes,
-        # 'sintaxis_text_info': sintaxis_text_info,
-        # 'sintaxis_tree_in_txt': sintaxis_tree_in_txt,
+        'sintaxis_text_info': sintaxis_text_info,
+        "sintaxis_text_info_txt" : sintaxis_text_info_txt,
+        "sintaxis_tree_in_txt": sintaxis_tree_in_txt,
+        'tokens': tokens,
+        "links" : links,
         'graphData': graphData,
     })
+
+# @app.route('/api/BuildSintaxisTree', methods=['POST'])
+# def BuildSintaxisTree():
+#     data = request.json
+#     received_text = data.get('text', '')
+    
+#     # Здесь можно обработать полученный текст
+#     print(f"Получен текст с фронтенда: {received_text}")
+#     PM = ProgramModule(received_text)
+
+#     graph_res = PM.graphem_res()
+#     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
+#     morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
+#     sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph = PM.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res)
+
+
+
+#     # Получаем данные графа
+#     graphData = parse_graphml(path_to_graphml)
+
+#     # print(f"\n\n\n {graphData} \n\n\n")
+
+#     # Отправляем ответ обратно
+#     return jsonify({
+#         'message': f'Сервер получил: "{received_text}" (длина: {len(received_text)} символов)',
+#         # 'sintaxis_root': sintaxis_root,
+#         # 'sintaxis_nodes': sintaxis_nodes,
+#         # 'sintaxis_text_info': sintaxis_text_info,
+#         # 'sintaxis_tree_in_txt': sintaxis_tree_in_txt,
+#         'graphData': graphData,
+#     })
 
 @app.route('/api/SemanticAnalize', methods=['POST'])
 def SemanticAnalize():
     data = request.json
     received_text = data.get('text', '')
-    
-    # Здесь можно обработать полученный текст
-    print(f"Получен текст с фронтенда: {received_text}")
-    PM = ProgramModule(received_text)
+    #print(f"Получен текст с фронтенда: {received_text}")
 
+    PM = ProgramModule(received_text)
     graph_res = PM.graphem_res()
     clauses_res, words_res, tokens_res = PM.spliter_res(graph_res)
     morph_res_for_clauses, morph_res = PM.morph_res(clauses_res)
-    sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml, graph = PM.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res)
-    datas = PM.semantic_res(sintaxis_root)
-
-    print(datas,"\n")
-
-    serializable_result = convert_nested_lists_to_dict(datas)
-    print(serializable_result)
+    sintaxis_root, _, _, _, _, _, _ \
+        = PM.sintaxis_res(morph_res_for_clauses)
+    semantic_table = PM.semantic_res(sintaxis_root)
+    serializable_result = convert_nested_lists_to_dict(semantic_table)
 
     # Отправляем ответ обратно
     return jsonify({
         'message': f'Сервер получил: "{received_text}" (длина: {len(received_text)} символов)',
-        'data': serializable_result,
+        'semantic_table': serializable_result,
     })
 
 

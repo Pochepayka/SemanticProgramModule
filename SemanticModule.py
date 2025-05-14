@@ -1,31 +1,10 @@
-class SemanticNode:
-    
-    """Класс для представления узла семантики."""
-    def __init__(self,features=None, children=None):
-        self.subjects = []
-        self.actions = []
-        self.objects = []
-        self.circumstances = []
-
-    def change_part_of_sent(self, part_of_speech):
-        self.part_of_sentence = part_of_speech
-
-    def add_connection(self, node, relation):
-        node.parent = self
-        node.link_to_parent = relation
-        self.connections.append((node, relation))
-
-    def __repr__(self):
-        return f"{self.type}('{self.lemma}', {self.features})"
-
-
 class SemanticAnalyzer:
     def __init__(self):
         self.groups = []
 
     def getWord(self, node):
         #return node.features.get("word")
-        return node
+        return node#.features.get("word")
         
     def _find_connections(self, node, current_group, mainNowI = 0):
         # Собираем связанные элементы для действия
@@ -88,8 +67,10 @@ class SemanticAnalyzer:
                 current_group["subjects"].append(self.getWord(child))
 
             elif relation in ["prepositional_object"]:
-                current_group["objects"]+= [self.getWord(child), next(self.getWord(subChild) for subChild,_ in child.connections if subChild)]
-
+                if len(child.connections)>0:
+                    obj =next(self.getWord(subChild) for subChild,_ in child.connections if subChild)
+                    if obj:
+                        current_group["objects"]+= [self.getWord(child), obj]
             elif relation in ["object"]:
                 pass
             else: 
@@ -134,18 +115,6 @@ class SemanticAnalyzer:
         # Преобразование в нужный формат
         formatted = []
         for group in self.groups:
-            # formatted.append({
-            #     "subject": (group["subjects"]) ,
-            #     "action": (group["actions"]),
-            #     "object": (group["objects"]) ,
-            #     "circumstances": (group["circumstances"]) 
-            # })
-            # formatted.append([
-            #     " + ".join(list(set(group["subjects"]))) ,
-            #     " + ".join(list(set(group["actions"]))),
-            #     " + ".join(list(set(group["objects"]))) ,
-            #     " + ".join(list(set(group["circumstances"]))) 
-            # ])
             formatted.append([
                 (group["subjects"]) ,
                 (group["actions"]),
@@ -157,22 +126,8 @@ class SemanticAnalyzer:
             ])
         return formatted
 
-# class SemanticAnalyzer:
-#     def __init__(self):
-#         self.root = None
-#         self.nodes = None
-
-#         self.subjects = []       # 8.1. Агенты
-#         self.actions = []        # 8.2. Действия
-#         self.objects = []        # 8.3. Пациенты
-#         self.tool = []           # 8.4. Инструменты
-#         self.locate = []         # 8.5. Локации
-#         self.time = []          # 8.6. Время
-#         self.circumstance = []  # 8.7. Обстоятельства
-#         self.predicate_argument_structure = []
-
-#     def _extract_semantic_groups(self, node, link, parent):
-#         """Определение семантических групп на основе типа узла и связи."""
+"""#     def _extract_semantic_groups(self, node, link, parent):
+#         #Определение семантических групп на основе типа узла и связи.
 
 #         # 8.1. Агент (subject)
 #         if (
@@ -220,7 +175,7 @@ class SemanticAnalyzer:
 #         if (
 #             link in ["adverbial"] 
 #         ):
-#             self.circumstance.append(node.features.get("word"))
+#             self.circumstance.append(node.features.get("word"))"""
 
 #     def action_VERB(self, node, link, parent):
 
@@ -331,35 +286,3 @@ class SemanticAnalyzer:
 #         if action!= [] or subject!=[]or object!=[]:
 #             self.predicate_argument_structure += [[action, subject, object]]
 
-
-#     def round(self, root):
-#         """Анализирует дерево и возвращает семантические группы."""
-#         self.subjects.clear()
-#         self.actions.clear()
-#         self.objects.clear()
-#         self.tool.clear()
-#         self.locate.clear()
-#         self.time.clear()
-#         self.circumstance.clear()
-
-#         def _traverse(node, link=None, parent=None):
-#             if node.type not in ["ROOT", "SENT", "PART_SENT"]:
-#                 self._extract_semantic_groups(node, link, parent)
-#                 # self.action_VERB(node, link, parent)
-#                 # self.action_PARTICIPLE(node, link, parent)
-#                 # self.action_ADVB_PARTICIPLE(node, link, parent)
-#             for child, rel in node.connections:
-#                 _traverse(child, rel, node)
-
-#         if root:
-#             _traverse(root)
-
-#         return {
-#             "subjects": list(set(self.subjects)),
-#             "actions": list(set(self.actions)),
-#             "objects": list(set(self.objects)),
-#             "tools": list(set(self.tool)),
-#             "locations": list(set(self.locate)),
-#             "time": list(set(self.time)),
-#             "circumstances": list(set(self.circumstance))
-#         }

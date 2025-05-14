@@ -196,7 +196,7 @@ if __name__ == "__main__":
     Когда солнце взошло, мы отправились в путь, и дорога оказалась удивительно красивой. There is good day! 
     http://ya.ru www.youtube.com ya@ya.com. Осень. Иван ушёл. Мама кричала: 'Вернёшься?!' Вечер - чудесное время!
     """
-
+    text = "Мама мыла раму."
     analyzer = GraphematicAnalyzer()
     results = analyzer.analyze(text)
 

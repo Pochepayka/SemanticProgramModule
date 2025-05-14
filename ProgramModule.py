@@ -23,49 +23,53 @@ class ProgramModule:
         graphems_res = self.graphem_res()
 
         print("\nГрафематический анализ:")
-        #for graphem in graphems_res:
-            #print(f"{graphem[0]}\t{graphem[1]}")
+        for graphem in graphems_res:
+            print(f"{graphem[0]}\t{graphem[1]}")
 
 
 
         clauses_res, words_res, tokens_res = self.spliter_res(graphems_res)
 
         print("\nРазделение на кляузы:")
-        #for clause in clauses_res:
-            #print(clause)
+        for clause in clauses_res:
+            print(clause)
 
         print("\nРазделение на слова:")
-        #for word in words_res:
-        #    print(word)
+        for word in words_res:
+            print(word)
 
         print("\nРазделение на токены:")
-        #for token in tokens_res:
-        #    print(token)
+        for token in tokens_res:
+            print(token)
 
 
 
         morph_res_for_clauses, morph_res = self.morph_res(clauses_res)
+        
 
         print("\nМорфологический анализ:")
-        #for morph in morph_res:
-        #    print(morph)
+
+        #print(morph_res_for_clauses)
+        for morph in morph_res_for_clauses:
+            print(morph)
 
 
 
 
-        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml,graph =\
-            self.sintaxis_res(clauses_res, morph_res_for_clauses, tokens_res, num_test)
+        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_to_graphml,graph, text_info_txt=\
+            self.sintaxis_res( morph_res_for_clauses, num_test)
 
         print("\nСинтаксический анализ:")
 
-        #print(sintaxis_tree_in_txt)
+        print(sintaxis_tree_in_txt)
 
 
         print("\nСемантический анализ:")
         
         datas = self.semantic_res(sintaxis_root)
  
-        #print(datas)
+        print(datas)
+
         for data in datas:
             print(data)
         
@@ -92,33 +96,32 @@ class ProgramModule:
         return clauses_res, words_res, tokens_res
 
     def morph_res(self,clauses_res):
-        morph_res_for_clauses=[]
+        morph_res_for_clauses = clauses_res
         morph_res=[]
         num_in_text = 1
-        for clause in clauses_res:
+        for i, clause in enumerate(clauses_res):
             morph_res_i_clause = []
             for token in clause.get("tokens"):
                 word = token.get("word")
                 descr = token.get("descriptors")
                 morph_res_i_clause += [self.morph_analyzer.analyze_word(word, num_in_text, descr)]
-                morph_res += [self.morph_analyzer.analyze_word(word, num_in_text)]
+                morph_res += [self.morph_analyzer.analyze_word(word, num_in_text, descr)] 
                 num_in_text += 1
-            morph_res_for_clauses += [morph_res_i_clause]
+            
+            morph_res_for_clauses[i]["tokens"] = morph_res_i_clause
 
         return morph_res_for_clauses, morph_res
 
-    def sintaxis_res(self, clauses_res, morph_res_for_clauses, tokens_res, num_test = 0, ):
-        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt =\
-             self.sintaxis_analyzer.analyze(clauses_res,morph_res_for_clauses)
+    def sintaxis_res(self, morph_res_for_clauses, num_test = 0):
         
+        sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt =\
+             self.sintaxis_analyzer.analyze(morph_res_for_clauses)
 
         text_info = self.print_text_info(sintaxis_text_info)
-        path_info = self.visual_result.save_txt(text_info, f"test_{num_test}_info")
+        #path_info = self.visual_result.save_txt(text_info, f"test_{num_test}_info")
         #text_info = self.visual_result.load_txt(path_info)
 
         graph = self.visual_result.create_graph(sintaxis_root)
-
-
         path_graph = self.visual_result.save_graph(graph, f"test_{num_test}_graph")
         #graph = self.visual_result.load_graph(path_graph)
 
@@ -128,18 +131,12 @@ class ProgramModule:
         # plt_text = self.visual_result.visualize_syntax_links(sintaxis_nodes,tokens_res)
         #path_text_plt = self.visual_result.save_plt_png(plt_text, f"test{num_test}_textA")
 
-
-
-
-
-        return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_graph, graph
+        return sintaxis_root, sintaxis_nodes, sintaxis_text_info, sintaxis_tree_in_txt, path_graph, graph, text_info
     
     def semantic_res(self, sintaxis_root):
-        datas = self.semantic_analyzer.round(sintaxis_root)
-
-        
-
-        return datas
+        semantic_table = self.semantic_analyzer.round(sintaxis_root)
+       
+        return semantic_table
 
 
 
@@ -240,7 +237,7 @@ class ProgramModule:
 if __name__ == "__main__":
     text = """Две старые кошки, мурлыча и грациозно двигаясь, поймали трёх мелких мышей в саду, но потом убежали в тёмный лес, где всегда тихо."""
     module = ProgramModule(text)
-    module.main()
+    module.main(0)
 
 
 

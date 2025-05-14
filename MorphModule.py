@@ -1,12 +1,8 @@
-from pylem import MorphanHolder, MorphLanguage
-import re
-
-from LoadJsonDict import FromJSON, ToJSON
-from ClauseSpliter import ClauseSplitter
-
+from pylem import MorphanHolder, MorphLanguage # type: ignore
+from LoadJsonDict import FromJSON
 
 class MorphAnalyzer:
-    def __init__(self, langRUS=MorphLanguage.Russian, langENG=MorphLanguage.English,
+    def __init__(self, langRUS=MorphLanguage.Russian,
                  quantitative_numeral_path="json/QUANTITATIVE_NUMERAL.json",
                  collective_numeral_path="json/COLLECTIVE_NUMERAL.json",
                  prep_cases_path="json/PREPOSITION_CASES_ru.json",
@@ -14,18 +10,14 @@ class MorphAnalyzer:
                  pos_map_path="json/POS_MAP.json"):
 
         # Инициализация анализатора
-        self.morphan_RUS = MorphanHolder(langRUS)
-        self.morphan_ENG = MorphanHolder(langENG)
-        self.morphan = self.morphan_RUS
-
+        self.morphan = MorphanHolder(langRUS)
+        #pylem.MorphanHolder(pylem.MorphLanguage.Russian)
         # Загрузка словарей
         self.QUANTITATIVE_NUMERAL = FromJSON(quantitative_numeral_path)
         self.COLLECTIVE_NUMERAL = FromJSON(collective_numeral_path)
         self.PREPOSITION_CASES = FromJSON(prep_cases_path)
         self.MORPH_FEATURE_MAP = FromJSON(morph_feat_path)
         self.POS_MAP = FromJSON(pos_map_path)
-
-        self.spliter = ClauseSplitter()
 
     # def analyze_text(self, words):
     #     result = [self.analyze_word(word) for word in words]#self.spliter.split_into_words(graphems)]
@@ -45,14 +37,15 @@ class MorphAnalyzer:
         is_maybe_name = "NAM?" in descriptors
         is_URL = "URL" in descriptors or "EA" in descriptors or "FILE" in descriptors
         is_digit = "DC" in descriptors or "DSC"in descriptors
-        #is_digit_lemma = "DSC"in descriptors
 
         # if is_composite or is_URL or is_digit or is_eng_lemma:
         #     return {"word": word,"lemma": word,"pos": []}
 
 
+        is_correct, is_change = False, False
+        if is_rus_lemma:
+            is_correct, is_change, word = self.check_correct(word)
 
-        is_correct, is_change, word = self.check_correct(word)
         if is_correct or not is_change and (is_rus_lemma or is_digit or is_URL ):
             for i, lemmInfo in enumerate(self.morphan.lemmatize(word)):
                 pos = self.normalize_pos(lemmInfo.part_of_speech)
@@ -75,7 +68,8 @@ class MorphAnalyzer:
                     "variants": morph_features["variants"],
                     "is_numeral": morph_features["is_numeral"],
                     "is_proper_name": morph_features["is_proper_name"],
-                    "num_in_text": num_in_text
+                    "num_in_text": num_in_text,
+                    "descriptors": descriptors
                 }
 
                 if not is_correct and not is_change:
@@ -97,7 +91,25 @@ class MorphAnalyzer:
             if len(data)>0:
                 return data[likely_option]
 
-        return {"word": word,"lemma": word,"pos": []}#None#
+        return {
+                    "word": word,
+                    "lemma": "НЕИЗВЕСТНАЯ_ЛЕММА",
+                    "pos": "НЕТ",
+                    "case": [],
+                    "number": [],
+                    "gender": [],
+                    "tense": [],
+                    "animacy": [],
+                    "trans": [],
+                    "pledge": [],
+                    "type": [],
+                    "variants": [],
+                    "is_numeral": False,
+                    "is_proper_name": True,
+                    "num_in_text": num_in_text,
+                    "descriptors": descriptors
+                }
+    #{"word": word,"lemma": word,"pos": []}#None#
 
     def parse_morph_features(self, morph_features, pos, lemma, word, is_correct):
         """Преобразует морфологические признаки в структурированный словарь"""
@@ -280,19 +292,19 @@ class MorphAnalyzer:
 if __name__ == "__main__":
     analyzer = MorphAnalyzer()
 
-    text = ["употреблённый","превративший"]
+    text = ["не", "бы", "же"]
 
-    print(analyzer.check_correct("чтл"))
+    #print(analyzer.check_correct("чтл"))
 
-    print(analyzer.morphan.synthesize("ДЕСЯТЬ", f"N"))
+    #print(analyzer.morphan.synthesize("ДЕСЯТЬ", f"N"))
 
     #word = "гуляю"
     for word in text:
         # Анализ слова
-        #print("\nАнализ слова:")
+        print("\nАнализ слова:")
         print(analyzer.analyze_word(word))
 
         # Полная информация о слове
-        #print("\nПолная информация:")
+        print("\nПолная информация:")
         for info in analyzer.get_word_info(word):
             print(info)

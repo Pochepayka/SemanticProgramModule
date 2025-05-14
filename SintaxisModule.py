@@ -59,7 +59,7 @@ class SintaxisAnalyzer:
         self.is_indept = None
         self.flag_finish_mode = None
 
-    def analyze(self, clauses, parsed_morph_tokens):
+    def analyze(self, parsed_morph_tokens):
 
         hyp = False
         col = False
@@ -84,7 +84,7 @@ class SintaxisAnalyzer:
 
         root_sintax_tree = SyntaxNode("ROOT", "ROOT")
 
-        for i, clause in enumerate(clauses):
+        for i, clause in enumerate(parsed_morph_tokens):
 
             tokens = clause["tokens"]
             descriptor = clause["descriptor"]
@@ -95,7 +95,7 @@ class SintaxisAnalyzer:
             sub_conj_sent+=sub_conjunctions
             coord_conj_sent+=coord_conjunctions
 
-            parsed_morph = parsed_morph_tokens[i] #берем чписок соответствующий iй клаузе
+            parsed_morph = tokens #parsed_morph_tokens[i] #берем чписок соответствующий iй клаузе
 
             hyp = "HYP" in clause["descriptor"]
             col = "COL" in clause["descriptor"]
@@ -464,7 +464,7 @@ class SintaxisAnalyzer:
         self._process_circumstance(node, i)
         self._process_verb(node, i)
         #self._process_particle(node, i)
-        self._process_preposition(node, i)
+        #self._process_preposition(node, i)
         self._process_genitive(node, i)
         self._process_adverbial_participle(node, i)
 
@@ -585,7 +585,7 @@ class SintaxisAnalyzer:
                 self.means_action.append([node, i])
 
     #субпредикат <- инфинитив
-    def _process_infinitive(self, node, i):
+    def  _process_infinitive(self, node, i):
         """Обработка инфинитивов"""
         if node.type == 'INFI':
 
@@ -757,7 +757,11 @@ class SintaxisAnalyzer:
 
         text = []
         def _traverse(node,level=0,relation=''):
-            text.append(' ' * level + f'└─ {relation} {node}')
+            if node.features.get("word") is None:
+                word = node.type
+            else:
+                word = node.features.get("word")
+            text.append(' ' * level + f'└─ {relation} {word}')
             #print(' ' * level + f'└─ {relation} {node}')
 
             for child, rel in node.connections:
@@ -820,30 +824,6 @@ class SintaxisAnalyzer:
 
         return (connect_case and connect_number and connect_gender and correct_position)
 
-        # numbers = []
-        # genders = []
-        # for var in n.features.get("variants"):
-        #     if self.check_common_word(node.features.get("case") ,var):
-        #         numbers += [var[1]]
-        #         genders += [var[2]]
-
-
-        # return( self.check_common_word(node.features.get("case") ,n.features.get("case"))
-        #         and (self.check_common_word(node.features.get("number"), numbers) or
-        #         numbers == [] or
-        #         node.features.get("number") == []) and
-        #         (self.check_common_word(node.features.get("gender"), genders) or
-        #         genders == [] or
-        #         node.features.get("gender") == []))
-
-        # print (n.lemma,[node.features.get("case")[0],
-        #     node.features.get("number")[0],
-        #     node.features.get("gender")[0]],
-        #     n.features.get("variants"))
-        #return ([node.features.get("case")[0],
-        #     node.features.get("number")[0],
-        #     node.features.get("gender")[0]] in
-        #     n.features.get("variants"))
 
     def _choose_role_prep_noum(self,prep,noun):
         object_rules = [
@@ -1002,10 +982,11 @@ if __name__ == "__main__":
     from GraphematicModule import GraphematicAnalyzer
 
     text = """
-    Когда солнце взошло, мы отправились в путь, и дорога оказалась удивительно красивой. 
-    Я знал, что он придёт, но всё равно волновался. 
-    Она улыбнулась мне, потому что была рада встрече, и я почувствовал тепло её взгляда.
-    """
+    Когда солнце взошло, мы отправились в путь."""
+    # , и дорога оказалась удивительно красивой. 
+    # Я знал, что он придёт, но всё равно волновался. 
+    # Она улыбнулась мне, потому что была рада встрече, и я почувствовал тепло её взгляда.
+    # """
 
     graph_analyzer = GraphematicAnalyzer()
     spliter = ClauseSplitter()
@@ -1027,7 +1008,7 @@ if __name__ == "__main__":
         morph_res_for_clauses += [morph_res_i_clause]
 
     analyzer = SintaxisAnalyzer()
-    root, nodes, info, tree = analyzer.analyze(clauses, morph_res_for_clauses)
+    root, nodes, info, tree = analyzer.analyze(morph_res_for_clauses)
 
     print("\nСинтаксический анализ:")
     print(analyzer.print_tree(root))
