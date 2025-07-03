@@ -69,10 +69,23 @@ The backend is built on Flash and provides processing of requests from the front
 
 
 <h2>Launch</h2>
-To run the web interface on the local host in development mode, use the command:
+To run the server to receive API requests, use the command:
  
-### `npm start`
-After open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### `python BackServer.py `
+After open [http://localhost:5000](http://localhost:5000) to view it in your browser.
+
+<h3>Example of a request to the server</h3>
+
+### `curl -X POST 'http://localhost:5000/api/{end_point}' -H 'Content-Type: application/json' -d '{"text":"Ваш текст для обработки здесь"}'`
+
+<h3>Еhe values that end_point can take</h3>
+<ul>
+ <li>GraphematicAnalyze</li>
+ <li>Spliter</li>
+ <li>MorphAnalyze</li>
+ <li>SintaxisAnalyze</li>
+ <li>SemanticAnalize</li>
+</ul>
 
 
 <h2>Example</h2>
