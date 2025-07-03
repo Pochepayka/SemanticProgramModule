@@ -16,27 +16,57 @@ The developed software module has a graphical interface in the form of a website
 
 <h2>Function</h2>
 
+<h3>Graphematic analysis</h3>
+Tokenization of text (separation into words, punctuation marks, numbers, etc.)
+Normalization of text (reduction to a single case, processing of abbreviations)
+Defining sentence boundaries
+Identification of named entities (dates, names, organizations, etc.)
+
+<h3>Morphological analysis</h3>
+Lemmatization (reducing words to their initial form)
+Definition of grammatical features (part of speech, gender, number, case, tense, etc.)
+Resolution of homonymy (selection of the correct morphological interpretation)
+Support for vocabulary and non-vocabulary forms
+
+<h3>Syntactic analysis</h3>
+Building a dependency tree (defining the subject, predicate, complement, etc.)
+Marking up syntactic relationships (types of relationships between words)
+Processing of complex sentences (compound and compound constructions)
+Consideration of word order and agreement in a sentence
+
+<h3>Semantic analysis</h3>
+Identification of semantic connections between words and sentences
+Exporting and visualizing results
+Structured data generation (JSON, GRAPHML)
+Visualization of syntax trees
+Support for integration with the web interface for parsing display
+
 <h3>Text input and loading</h3>
 
 Support for manual text input via a text field. Uploading files in .txt format. The ability to clear the input field and reset the current analysis. 
 
-<h3>Display of the analysis results</h3> 
-
-<h4>Graphematic level</h4>
-A table with tokens and their descriptors (RE, LLE, DC, PUN, etc.). 
-
-<h4>Morphological level</h4>
-Details for each word: lemma, part of speech, grammemes (case, number, gender, tense). 
-
-<h4>Syntactic level</h4>
-Interactive dependency tree with nodes (verbs, nouns) and connections (subject, complement), school format for visualizing the result of syntactic analysis, output of information about the text. 
-
-<h4>Semantic level</h4>
-Visualization of a semantic network in the form of a table of links.
-
-<h3>Exporting the results. </h3>
+<h3>Exporting the results</h3>
 
 Saving data in JSON/XML formats for further software processing. CSV is a tabular representation of tokens and descriptors. SVG/PNG reports with visualization of trees. GRAPHML is a graph representation format with information about nodes.
+
+<h2>Input and output data format</h2>
+
+<h3>Input data</h3>
+<ul>
+ <li>natural language text in UTF-8 encoding</li>
+ <li>the type of linguistic analysis</li>
+</ul>
+<h3>Output data</h3>
+<ul>
+ <li>the result of the analyzer in JSON format</li>
+ <li>error signals</li>
+</ul>
+
+<h2>API</h2>
+The software module is equipped with an API for working with it from third-party services. 
+
+The backend is built on Flash and provides processing of requests from the frontend. When submitting the form, the data (text and selected mode) is transferred to the corresponding API endpoint, for example /api/GraphematicAnalyze for graphematic analysis. The server starts a software pipeline that processes the text with the selected analyzer and returns the result in JSON format. For example, for graphematics mode, the response includes a list of tokens with descriptors, and for semantics, nodes and connections of the semantic network.
+
 
 <h2>Launch</h2>
 To run the web interface on the local host in development mode, use the command:
